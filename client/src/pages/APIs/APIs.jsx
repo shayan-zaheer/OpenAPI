@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -25,7 +24,6 @@ const ApiPage = () => {
     getAPI();
   }, [id]);
 
-  // Show message if API is private
   if (api?.failure) {
     return (
       <motion.div
@@ -76,7 +74,11 @@ const ApiPage = () => {
         className="w-9/12 relative mx-auto md:rounded-2xl mt-28"
       >
         <div className="absolute inset-0 w-full h-full bg-cover bg-center blur-md rounded-2xl">
-          <img src={"/HeroBackground.png"} alt="API Background" className="object-cover rounded-2xl w-full h-full" />
+          <img
+            src={"/HeroBackground.png"}
+            alt="API Background"
+            className="object-cover rounded-2xl w-full h-full"
+          />
         </div>
 
         <div className="relative w-full min-h-full bg-black bg-opacity-60 md:rounded-2xl p-10 shadow-lg flex flex-col items-center">
@@ -135,7 +137,9 @@ const ApiPage = () => {
           <motion.button
             whileHover={{ scale: 1.1 }}
             onClick={() => setFavorited(!favorited)}
-            className={`transition ${favorited ? "text-red-500" : "text-gray-400"}`}
+            className={`transition ${
+              favorited ? "text-red-500" : "text-gray-400"
+            }`}
           >
             <FiHeart size={20} />
           </motion.button>
@@ -177,3 +181,4 @@ const ApiPage = () => {
 };
 
 export default ApiPage;
+

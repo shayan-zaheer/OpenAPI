@@ -1,6 +1,7 @@
 import React from "react";
 import Hero from "./Hero";
 import Collections from "../../components/Collections";
+import FIrstSection from "./FIrstSection";
 
 const Home = () => {
   const apis = [
@@ -25,7 +26,7 @@ const Home = () => {
   ];
   return (
     <div className="w-full mt-20 min-h-screen bg-[#1a1c1ff8]">
-      <Hero />
+      <FIrstSection />
       <Collections collectionName={"APIs Languages"} apis={apis} />
     </div>
   );

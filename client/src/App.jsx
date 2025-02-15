@@ -8,6 +8,7 @@ import Profile from "./pages/Profile/Profile";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import UploadAPI from "./pages/UploadAPI";
+import ApiPage from "./pages/APIs/APIs";
 import BrowseApis from "./pages/Search/SearchAPI";
 
 const App = () => {
@@ -16,13 +17,13 @@ const App = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/api/:id" element={<APIs />} />
+        <Route path="/api/:id" element={<ApiPage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/upload" element={<UploadAPI />} />
         <Route path="/search" element={<BrowseApis />} />
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
       <Toaster />
     </BrowserRouter>
   );
