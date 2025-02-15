@@ -1,19 +1,20 @@
 const express = require("express");
-const router = express.Router();
+const passport = require("passport");
 const authController = require("../controllers/authController");
+
+const router = express.Router();
 
 router.route("/signup").post(authController.signUp);
 router.route("/login").post(authController.login);
+router.route("/logout").get(authController.logout);
 
-  router.route("/logout").get((request, response) => {
-    request.logout(() => {
-      response.status(200).json({status: 'success', message: "Logged out!"});
-    });
-  });
+router.route("/google").get(passport.authenticate("google", { scope: ["profile", "email"] }));
 
-  router.route("/reset-password/:token").post(authController.resetPassword);
-  router.route("/forget-password").post(authController.forgetPassword);
-
-  router.route("/users").get(authController.ensureAuthenticated, authController.getAllUsers);
+router.route("/google/callback").get(
+  passport.authenticate("google", { failureRedirect: "/" }),
+  (request, response) => {
+    response.redirect("http://localhost:5173/");
+  }
+);
 
 module.exports = router;
