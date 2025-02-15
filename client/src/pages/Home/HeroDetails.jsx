@@ -7,9 +7,9 @@ const HeroDetails = () => {
     <motion.div
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      className="flex flex-col  max-sm:w-full sm:w-full md:w-full pr-5"
+      className="flex flex-col  max-sm:w-full sm:w-full md:w-full pr-5 max-md:pt-10 md:pt-5"
     >
-      <h1 className="text-white text-6xl sm:text-6xl md:text-8xl font-semibold lg:w-full max-sm:w-full max-sm:text-4xl tracking-wider ">
+      <h1 className="text-white text-6xl sm:text-6xl md:text-7xl font-semibold lg:w-full max-sm:w-full sm:w-11/12 max-sm:text-4xl tracking-wider ">
         {" "}
         Discover & Share{" "}
         <span className="bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4]  animate-gradient text-transparent bg-clip-text ">
