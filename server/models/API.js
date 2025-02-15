@@ -16,7 +16,7 @@ const ApiSchema = new mongoose.Schema(
       cost: { type: Number, default: 0 }, // Cost of the API (0 = Free)
       upvotes: { type: Number, default: 0 },
       downvotes: { type: Number, default: 0 },
-      allowedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Users granted access
+      authorizedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Users granted access
       upvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
       downvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
