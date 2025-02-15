@@ -17,6 +17,9 @@ const ApiSchema = new mongoose.Schema(
       upvotes: { type: Number, default: 0 },
       downvotes: { type: Number, default: 0 },
       allowedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Users granted access
+      upvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      downvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
     },
     { timestamps: true }
   );
