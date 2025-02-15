@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 
 const HeroDetails = () => {
   const user = useSelector((state) => state.user.user);
+  console.log(user);
   return (
     <motion.div
       initial={{ y: 200, opacity: 0 }}

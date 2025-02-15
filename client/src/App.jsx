@@ -19,7 +19,7 @@ const App = () => {
         <Route path="/api" element={<APIs />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/upload" element={<UploadAPI />} />
-        <Route path="/apis/:language" element={<ApiPage />} />
+        <Route path="/apis/" element={<ApiPage />} />
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>
       {/* <Footer /> */}
