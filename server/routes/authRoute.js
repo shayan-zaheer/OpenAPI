@@ -17,4 +17,12 @@ router.route("/google/callback").get(
   }
 );
 
+router.route("/status").get((request, response) => {
+  if (request.isAuthenticated()) {
+      return response.json({ status: "authenticated", user: request.user });
+  } else {
+      return response.json({ status: "unauthenticated" });
+  }
+})
+
 module.exports = router;

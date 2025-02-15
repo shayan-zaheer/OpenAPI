@@ -10,7 +10,7 @@ exports.ensureAuthenticated = (request, response, next) => {
 
 exports.signUp = async (request, response) => {
   try {
-    const { displayName, email, password } = req.body;
+    const { displayName, email, password } = request.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return response.status(400).json({ message: "Email already in use" });
@@ -25,7 +25,7 @@ exports.signUp = async (request, response) => {
     await newUser.save();
     response.status(201).json({ message: "User registered successfully" });
   } catch (err) {
-    response.status(500).json({ message: "Server error" });
+    response.status(500).json({ message: err.message });
   }
 };
 
@@ -50,7 +50,7 @@ exports.login = (request, response, next) => {
   })(request, response, next);
 };
 
-exports.logout = (request, res) => {
+exports.logout = (request, response) => {
   request.logout(() => {
     response.status(200).json({ status: "success", message: "Logged out!" });
   });
