@@ -268,6 +268,7 @@ const deleteUserAPI = async (req, res) => {
  */
 const getAllAPIs = async (req, res) => {
   try {
+
     let filter = { visibility: "public" };
 
     // If the user is authenticated, include private APIs they either own or are authorized to view.
@@ -414,5 +415,5 @@ module.exports = {
   deleteUserAPI,
   getAllAPIs,
   getAPIById,
-  updateVote
+  updateVote,
 };
