@@ -3,19 +3,40 @@ const API = require("../models/API");
 
 const getAPIById = async (req, res) => {
   try {
+    // Retrieve the API and populate the owner field
     const api = await API.findById(req.params.id).populate("owner");
     if (!api) {
       return res.status(404).json({ success: false, message: "API not found" });
     }
-    // If the API is private, ensure that the authenticated user is the owner.
+
+    // If the API is private, allow only the owner or an authorized user to access it.
     if (api.visibility === "private") {
-      if (!req.user || api.owner._id.toString() !== req.user.id) {
+      // Ensure the user is authenticated
+      if (!req.user) {
+        return res.status(403).json({ 
+          success: false, 
+          message: "Unauthorized: This API is private" 
+        });
+      }
+      
+      // Check if the user is the owner.
+      const isOwner = api.owner._id.toString() === req.user.id;
+      
+      // Check if the user is in the authorizedUsers list.
+      // This assumes authorizedUsers is an array of ObjectIds.
+      const isAuthorizedUser = api.authorizedUsers && api.authorizedUsers.some(
+        userId => userId.toString() === req.user.id
+      );
+      
+      if (!isOwner && !isAuthorizedUser) {
         return res.status(403).json({ 
           success: false, 
           message: "Unauthorized: This API is private" 
         });
       }
     }
+    
+    // If public or authorized, return the API.
     res.status(200).json({ success: true, api });
   } catch (error) {
     res.status(500).json({ 
@@ -166,13 +187,23 @@ const getApisByLanguage = async (req, res) => {
       });
     }
     let filter = { language, visibility: "public" };
-    // If the user is authenticated, include their private APIs.
+
+    // If the user is authenticated, include private APIs that they either own or are authorized to view.
     if (req.user && req.user.id) {
       filter = {
         language,
         $or: [
           { visibility: "public" },
-          { $and: [ { visibility: "private" }, { owner: req.user.id } ] }
+          { 
+            $and: [
+              { visibility: "private" },
+              { $or: [
+                  { owner: req.user.id },
+                  { authorizedUsers: req.user.id }
+                ]
+              }
+            ]
+          }
         ]
       };
     }
@@ -193,158 +224,185 @@ const getApisByLanguage = async (req, res) => {
   }
 };
 
-
+/**
+ * Delete an API owned by the authenticated user.
+ * DELETE /API/APIs/:id
+ */
 const deleteUserAPI = async (req, res) => {
-    try {
-      const apiId = req.params.id;
-      const existingAPI = await API.findById(apiId);
-      
-      if (!existingAPI) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "API not found" 
-        });
-      }
-  
-      // Ensure the authenticated user is the owner of the API
-      if (existingAPI.owner.toString() !== req.user.id) {
+  try {
+    const apiId = req.params.id;
+    const existingAPI = await API.findById(apiId);
+    
+    if (!existingAPI) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "API not found" 
+      });
+    }
+
+    // Ensure the authenticated user is the owner of the API
+    if (existingAPI.owner.toString() !== req.user.id) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Unauthorized: You do not own this API" 
+      });
+    }
+
+    await API.findByIdAndDelete(apiId);
+    res.status(200).json({ 
+      success: true, 
+      message: "API deleted successfully" 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error", 
+      error: error.message 
+    });
+  }
+};
+
+/**
+ * Get all APIs (public endpoint)
+ * GET /api/apis
+ */
+const getAllAPIs = async (req, res) => {
+  try {
+    let filter = { visibility: "public" };
+
+    // If the user is authenticated, include private APIs they either own or are authorized to view.
+    if (req.user && req.user.id) {
+      filter = {
+        $or: [
+          { visibility: "public" },
+          { 
+            $and: [
+              { visibility: "private" },
+              { $or: [
+                  { owner: req.user.id },
+                  { authorizedUsers: req.user.id }
+                ]
+              }
+            ]
+          }
+        ]
+      };
+    }
+    const apis = await API.find(filter).populate("owner");
+    res.status(200).json({ 
+      success: true, 
+      count: apis.length, 
+      apis 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error", 
+      error: error.message 
+    });
+  }
+};
+
+/**
+ * Update vote for an API.
+ * PATCH /api/apis/:id/vote
+ */
+const updateVote = async (req, res) => {
+  try {
+    const apiId = req.params.id;
+    const { action } = req.body; // Expected: "upvote", "downvote", "withdrawUpvote", "withdrawDownvote"
+    const userId = req.user.id;
+
+    // Validate the action value.
+    const validActions = ["upvote", "downvote", "withdrawUpvote", "withdrawDownvote"];
+    if (!validActions.includes(action)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid vote action. Use one of: upvote, downvote, withdrawUpvote, withdrawDownvote." 
+      });
+    }
+
+    // Retrieve the API document
+    const api = await API.findById(apiId);
+    if (!api) {
+      return res.status(404).json({ success: false, message: "API not found" });
+    }
+
+    // If the API is private, ensure that the user is either the owner or an authorized user.
+    if (api.visibility === "private") {
+      const isOwner = api.owner.toString() === req.user.id;
+      const isAuthorized = api.authorizedUsers && api.authorizedUsers.some(
+        authId => authId.toString() === req.user.id
+      );
+      if (!isOwner && !isAuthorized) {
         return res.status(403).json({ 
           success: false, 
-          message: "Unauthorized: You do not own this API" 
+          message: "Unauthorized: Private API" 
         });
       }
-  
-      await API.findByIdAndDelete(apiId);
-      res.status(200).json({ 
-        success: true, 
-        message: "API deleted successfully" 
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        message: "Server error", 
-        error: error.message 
-      });
     }
-  };
-  
-  /**
-   * Get all APIs (public endpoint)
-   * GET /api/apis
-   */
-  const getAllAPIs = async (req, res) => {
-    try {
-      let filter = { visibility: "public" };
-      // If the user is authenticated, include their own private APIs as well.
-      if (req.user && req.user.id) {
-        filter = {
-          $or: [
-            { visibility: "public" },
-            { $and: [ { visibility: "private" }, { owner: req.user.id } ] }
-          ]
-        };
-      }
-      const apis = await API.find(filter).populate("owner");
-      res.status(200).json({ 
-        success: true, 
-        count: apis.length, 
-        apis 
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        message: "Server error", 
-        error: error.message 
-      });
-    }
-  };
 
-  const updateVote = async (req, res) => {
-    try {
-      const apiId = req.params.id;
-      const { action } = req.body; // Expected: "upvote", "downvote", "withdrawUpvote", "withdrawDownvote"
-      const userId = req.user.id;
-  
-      // Validate the action value.
-      const validActions = ["upvote", "downvote", "withdrawUpvote", "withdrawDownvote"];
-      if (!validActions.includes(action)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: "Invalid vote action. Use one of: upvote, downvote, withdrawUpvote, withdrawDownvote." 
-        });
-      }
-  
-      // Retrieve the API document
-      const api = await API.findById(apiId);
-      if (!api) {
-        return res.status(404).json({ success: false, message: "API not found" });
-      }
-  
-      // For this logic, we assume that your API schema now includes:
-      // upvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-      // downvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
-  
-      switch (action) {
-        case "upvote":
-          if (api.upvotedBy.includes(userId)) {
-            return res.status(400).json({ success: false, message: "User has already upvoted this API." });
-          }
-          // If the user had previously downvoted, remove that vote.
-          if (api.downvotedBy.includes(userId)) {
-            api.downvotedBy.pull(userId);
-            api.downvotes = Math.max(0, api.downvotes - 1);
-          }
-          api.upvotedBy.push(userId);
-          api.upvotes += 1;
-          break;
-  
-        case "downvote":
-          if (api.downvotedBy.includes(userId)) {
-            return res.status(400).json({ success: false, message: "User has already downvoted this API." });
-          }
-          // If the user had previously upvoted, remove that vote.
-          if (api.upvotedBy.includes(userId)) {
-            api.upvotedBy.pull(userId);
-            api.upvotes = Math.max(0, api.upvotes - 1);
-          }
-          api.downvotedBy.push(userId);
-          api.downvotes += 1;
-          break;
-  
-        case "withdrawUpvote":
-          if (!api.upvotedBy.includes(userId)) {
-            return res.status(400).json({ success: false, message: "User has not upvoted this API." });
-          }
-          api.upvotedBy.pull(userId);
-          api.upvotes = Math.max(0, api.upvotes - 1);
-          break;
-  
-        case "withdrawDownvote":
-          if (!api.downvotedBy.includes(userId)) {
-            return res.status(400).json({ success: false, message: "User has not downvoted this API." });
-          }
+    // Vote logic (assuming the API schema includes upvotedBy and downvotedBy arrays)
+    switch (action) {
+      case "upvote":
+        if (api.upvotedBy.includes(userId)) {
+          return res.status(400).json({ success: false, message: "User has already upvoted this API." });
+        }
+        // Remove a prior downvote if present.
+        if (api.downvotedBy.includes(userId)) {
           api.downvotedBy.pull(userId);
           api.downvotes = Math.max(0, api.downvotes - 1);
-          break;
-      }
-  
-      // Save the updated API document
-      const updatedAPI = await api.save();
-  
-      res.status(200).json({ 
-        success: true, 
-        message: "Vote updated successfully", 
-        API: updatedAPI 
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        message: "Server error", 
-        error: error.message 
-      });
-    }
-  };
+        }
+        api.upvotedBy.push(userId);
+        api.upvotes += 1;
+        break;
 
+      case "downvote":
+        if (api.downvotedBy.includes(userId)) {
+          return res.status(400).json({ success: false, message: "User has already downvoted this API." });
+        }
+        // Remove a prior upvote if present.
+        if (api.upvotedBy.includes(userId)) {
+          api.upvotedBy.pull(userId);
+          api.upvotes = Math.max(0, api.upvotes - 1);
+        }
+        api.downvotedBy.push(userId);
+        api.downvotes += 1;
+        break;
+
+      case "withdrawUpvote":
+        if (!api.upvotedBy.includes(userId)) {
+          return res.status(400).json({ success: false, message: "User has not upvoted this API." });
+        }
+        api.upvotedBy.pull(userId);
+        api.upvotes = Math.max(0, api.upvotes - 1);
+        break;
+
+      case "withdrawDownvote":
+        if (!api.downvotedBy.includes(userId)) {
+          return res.status(400).json({ success: false, message: "User has not downvoted this API." });
+        }
+        api.downvotedBy.pull(userId);
+        api.downvotes = Math.max(0, api.downvotes - 1);
+        break;
+    }
+
+    // Save the updated API document
+    const updatedAPI = await api.save();
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Vote updated successfully", 
+      API: updatedAPI 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error", 
+      error: error.message 
+    });
+  }
+};
 
 
 
