@@ -344,8 +344,6 @@ const deleteUserAPI = async (req, res) => {
       });
     }
   };
-  
-  module.exports = { updateVote };
 
 
 
