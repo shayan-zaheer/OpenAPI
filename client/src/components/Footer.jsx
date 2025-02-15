@@ -1,12 +1,9 @@
 import React from "react";
-import { FaFacebookF } from "react-icons/fa";
-import { FaInstagram } from "react-icons/fa";
-import { FaPinterestP } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="w-full max-sm:h-[535px] bg-[#222528] pt-4 border border-black">
+    <footer className="w-full max-sm:h-[535px] bg-[#222528] pt-4 border border-black ">
       <div className="w-full h-11/12 flex max-sm:flex-col sm:flex-col md:flex-row justify-center lg:mb-5">
         <div className="flex flex-col items-center justify-center w-full">
           <div className="flex items-center space-x-2">

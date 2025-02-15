@@ -9,7 +9,6 @@ const Hero = () => {
         <img
           src={"/HeroBackground.png"}
           alt="Gemstone"
-          fill
           className="object-cover rounded-2xl w-full h-full"
         />
       </div>
