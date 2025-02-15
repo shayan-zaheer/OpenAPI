@@ -7,12 +7,24 @@ const getAPIById = async (req, res) => {
     if (!api) {
       return res.status(404).json({ success: false, message: "API not found" });
     }
+    // If the API is private, ensure that the authenticated user is the owner.
+    if (api.visibility === "private") {
+      if (!req.user || api.owner._id.toString() !== req.user.id) {
+        return res.status(403).json({ 
+          success: false, 
+          message: "Unauthorized: This API is private" 
+        });
+      }
+    }
     res.status(200).json({ success: true, api });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error", 
+      error: error.message 
+    });
   }
 };
-
 
 
 /**
@@ -94,6 +106,8 @@ const updateUserAPI = async (req, res) => {
   try {
     // Get the API ID from the route parameters
     const APIId = req.params.id;
+    // Optionally, get the version from the route parameters (if provided)
+    const newVersion = req.params.version;
 
     // Find the API by its ID
     const existingAPI = await API.findById(APIId);
@@ -110,6 +124,11 @@ const updateUserAPI = async (req, res) => {
         success: false,
         message: "Unauthorized: You do not own this API",
       });
+    }
+
+    // If a version parameter is provided, update the request body with it.
+    if (newVersion) {
+      req.body.version = newVersion;
     }
 
     // Update the API document with the data from the request body.
@@ -139,23 +158,38 @@ const updateUserAPI = async (req, res) => {
  */
 const getApisByLanguage = async (req, res) => {
   try {
-    // Retrieve the language from request parameters
     const { language } = req.params;
-
     if (!language) {
-      return res.status(400).json({ success: false, message: "Language parameter is required" });
+      return res.status(400).json({ 
+        success: false, 
+        message: "Language parameter is required" 
+      });
     }
-
-    // Find APIs that match the given language and populate the entire owner object
-    const apis = await API.find({ language }).populate("owner");
-
+    let filter = { language, visibility: "public" };
+    // If the user is authenticated, include their private APIs.
+    if (req.user && req.user.id) {
+      filter = {
+        language,
+        $or: [
+          { visibility: "public" },
+          { $and: [ { visibility: "private" }, { owner: req.user.id } ] }
+        ]
+      };
+    }
+    const apis = await API.find(filter).populate("owner");
     if (!apis.length) {
-      return res.status(404).json({ success: false, message: `No APIs found for language: ${language}` });
+      return res.status(404).json({ 
+        success: false, 
+        message: `No APIs found for language: ${language}` 
+      });
     }
-
     res.status(200).json({ success: true, count: apis.length, apis });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error", 
+      error: error.message 
+    });
   }
 };
 
@@ -200,20 +234,17 @@ const deleteUserAPI = async (req, res) => {
    */
   const getAllAPIs = async (req, res) => {
     try {
-      const newAPI = new API({
-        name,
-        code,
-        documentation,
-        language,
-        baseUrl,
-        owner: req.user.id, // Set owner from the authenticated user
-        version: version || "1.0.0",
-        visibility: visibility || "public",
-        cost: cost || 0,
-      });
-      // Save the new API to the database
-      const savedAPI = await newAPI.save();
-      const apis = await API.find({}).populate("owner");
+      let filter = { visibility: "public" };
+      // If the user is authenticated, include their own private APIs as well.
+      if (req.user && req.user.id) {
+        filter = {
+          $or: [
+            { visibility: "public" },
+            { $and: [ { visibility: "private" }, { owner: req.user.id } ] }
+          ]
+        };
+      }
+      const apis = await API.find(filter).populate("owner");
       res.status(200).json({ 
         success: true, 
         count: apis.length, 
@@ -228,6 +259,97 @@ const deleteUserAPI = async (req, res) => {
     }
   };
 
+  const updateVote = async (req, res) => {
+    try {
+      const apiId = req.params.id;
+      const { action } = req.body; // Expected: "upvote", "downvote", "withdrawUpvote", "withdrawDownvote"
+      const userId = req.user.id;
+  
+      // Validate the action value.
+      const validActions = ["upvote", "downvote", "withdrawUpvote", "withdrawDownvote"];
+      if (!validActions.includes(action)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid vote action. Use one of: upvote, downvote, withdrawUpvote, withdrawDownvote." 
+        });
+      }
+  
+      // Retrieve the API document
+      const api = await API.findById(apiId);
+      if (!api) {
+        return res.status(404).json({ success: false, message: "API not found" });
+      }
+  
+      // For this logic, we assume that your API schema now includes:
+      // upvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      // downvotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
+  
+      switch (action) {
+        case "upvote":
+          if (api.upvotedBy.includes(userId)) {
+            return res.status(400).json({ success: false, message: "User has already upvoted this API." });
+          }
+          // If the user had previously downvoted, remove that vote.
+          if (api.downvotedBy.includes(userId)) {
+            api.downvotedBy.pull(userId);
+            api.downvotes = Math.max(0, api.downvotes - 1);
+          }
+          api.upvotedBy.push(userId);
+          api.upvotes += 1;
+          break;
+  
+        case "downvote":
+          if (api.downvotedBy.includes(userId)) {
+            return res.status(400).json({ success: false, message: "User has already downvoted this API." });
+          }
+          // If the user had previously upvoted, remove that vote.
+          if (api.upvotedBy.includes(userId)) {
+            api.upvotedBy.pull(userId);
+            api.upvotes = Math.max(0, api.upvotes - 1);
+          }
+          api.downvotedBy.push(userId);
+          api.downvotes += 1;
+          break;
+  
+        case "withdrawUpvote":
+          if (!api.upvotedBy.includes(userId)) {
+            return res.status(400).json({ success: false, message: "User has not upvoted this API." });
+          }
+          api.upvotedBy.pull(userId);
+          api.upvotes = Math.max(0, api.upvotes - 1);
+          break;
+  
+        case "withdrawDownvote":
+          if (!api.downvotedBy.includes(userId)) {
+            return res.status(400).json({ success: false, message: "User has not downvoted this API." });
+          }
+          api.downvotedBy.pull(userId);
+          api.downvotes = Math.max(0, api.downvotes - 1);
+          break;
+      }
+  
+      // Save the updated API document
+      const updatedAPI = await api.save();
+  
+      res.status(200).json({ 
+        success: true, 
+        message: "Vote updated successfully", 
+        API: updatedAPI 
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        message: "Server error", 
+        error: error.message 
+      });
+    }
+  };
+  
+  module.exports = { updateVote };
+
+
+
+
 module.exports = {
   getUserAPIs,
   addUserAPI,
@@ -235,5 +357,6 @@ module.exports = {
   getApisByLanguage,
   deleteUserAPI,
   getAllAPIs,
-  getAPIById
+  getAPIById,
+  updateVote
 };

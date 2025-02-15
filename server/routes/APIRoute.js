@@ -1,9 +1,10 @@
 const express = require("express");
-const {getAllAPIs, addUserAPI, updateUserAPI, getApisByLanguage,  getUserAPIs, getAPIById  } = require('../controllers/APIController')
+const {getAllAPIs, addUserAPI, updateUserAPI, getApisByLanguage,  getUserAPIs, getAPIById, updateVote } = require('../controllers/APIController')
 const router = express.Router();
 router.route("/userAPIs").get()
 
-router.route('/:id').get(getAPIById)
+router.route('/:id').get(getAPIById).post(updateVote)
+
 
 router.route('/')
   .get(getAllAPIs)
