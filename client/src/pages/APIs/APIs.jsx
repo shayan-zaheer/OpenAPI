@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FiDownload, FiCopy, FiHeart, FiThumbsUp, FiThumbsDown } from "react-icons/fi";
+import {
+  FiDownload,
+  FiCopy,
+  FiHeart,
+  FiThumbsUp,
+  FiThumbsDown,
+} from "react-icons/fi";
 
 const ApiPage = () => {
   const [upvotes, setUpvotes] = useState(12);
@@ -20,7 +26,8 @@ exports.getWeather = async (req, res) => {
         res.status(500).json({ message: "Error fetching weather data", error: error.message });
     }
 };`,
-    documentation: "This API provides real-time weather data for any city. You can fetch temperature, humidity, and weather conditions using a simple GET request.",
+    documentation:
+      "This API provides real-time weather data for any city. You can fetch temperature, humidity, and weather conditions using a simple GET request.",
   };
 
   const handleCopy = () => {
@@ -53,7 +60,11 @@ exports.getWeather = async (req, res) => {
         className="w-9/12 relative mx-auto md:rounded-2xl mt-28"
       >
         <div className="absolute inset-0 w-full h-full bg-cover bg-center blur-md rounded-2xl">
-          <img src={"/HeroBackground.png"} alt="API Background" className="object-cover rounded-2xl w-full h-full" />
+          <img
+            src={"/HeroBackground.png"}
+            alt="API Background"
+            className="object-cover rounded-2xl w-full h-full"
+          />
         </div>
 
         <div className="relative w-full min-h-full bg-black bg-opacity-60 md:rounded-2xl p-10 shadow-lg flex flex-col items-center">
@@ -109,7 +120,9 @@ exports.getWeather = async (req, res) => {
           <motion.button
             whileHover={{ scale: 1.1 }}
             onClick={() => setFavorited(!favorited)}
-            className={`transition ${favorited ? "text-red-500" : "text-gray-400"}`}
+            className={`transition ${
+              favorited ? "text-red-500" : "text-gray-400"
+            }`}
           >
             <FiHeart size={20} />
           </motion.button>

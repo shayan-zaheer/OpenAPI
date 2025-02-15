@@ -10,14 +10,18 @@ exports.ensureAuthenticated = (request, response, next) => {
 
 exports.signUp = async (request, response) => {
   try {
+<<<<<<< HEAD
     const { displayName, email, password } = request.body;
+=======
+    const { username, email, password } = request.body;
+>>>>>>> 4ad1a3d2261a3b46f8c8c99fc8b757608f2d275b
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return response.status(400).json({ message: "Email already in use" });
 
     const newUser = new User({
       provider: "local",
-      displayName,
+      username,
       email,
       password,
     });
@@ -25,7 +29,11 @@ exports.signUp = async (request, response) => {
     await newUser.save();
     response.status(201).json({ message: "User registered successfully" });
   } catch (err) {
+<<<<<<< HEAD
     response.status(500).json({ message: err.message });
+=======
+    response.status(500).json({ message: "error: "+ err.message  });
+>>>>>>> 4ad1a3d2261a3b46f8c8c99fc8b757608f2d275b
   }
 };
 

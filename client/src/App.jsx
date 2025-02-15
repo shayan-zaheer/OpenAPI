@@ -8,6 +8,7 @@ import Profile from "./pages/Profile/Profile";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import UploadAPI from "./pages/UploadAPI";
+import ApiPage from "./pages/APIs/APIs";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/api" element={<APIs />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/upload" element={<UploadAPI />} />
+        <Route path="/apis/:language" element={<ApiPage />} />
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>
       {/* <Footer /> */}
