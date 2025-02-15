@@ -7,7 +7,7 @@ import APIs from "./pages/APIs/APIs";
 import Profile from "./pages/Profile/Profile";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
-import Favourites from "./pages/Favourites/Favourites";
+import UploadAPI from "./pages/UploadAPI";
 
 const App = () => {
   return (
@@ -16,8 +16,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/api" element={<APIs />} />
-        <Route path="/upload" element={<Profile />} />
-        <Route path="/favourites" element={<Favourites />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/upload" element={<UploadAPI />} />
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>
       {/* <Footer /> */}

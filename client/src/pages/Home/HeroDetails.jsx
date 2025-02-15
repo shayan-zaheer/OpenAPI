@@ -15,7 +15,7 @@ const HeroDetails = () => {
       <h1 className="text-white text-6xl sm:text-6xl md:text-7xl font-semibold lg:w-full max-sm:w-full sm:w-11/12 max-sm:text-4xl tracking-wider ">
         {" "}
         Discover & Share{" "}
-        <span className="bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4]  animate-gradient text-transparent bg-clip-text ">
+        <span className="bg-gradient-to-r from-[#FF0044] to-[#00D4FF]  animate-gradient text-transparent bg-clip-text ">
           APIs
         </span>{" "}
         with Ease

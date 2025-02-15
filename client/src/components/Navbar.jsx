@@ -49,7 +49,12 @@ const Navbar = () => {
       <div className="flex items-center space-x-2">
         <img src={"/Logo.png"} alt="Logo" className="w-16 h-16 rounded-full" />
         <h1 className="text-white text-xl font-bold pt-2">
-          <Link to={"/"}>OPEN API</Link>
+          <Link to={"/"}>
+            OPEN{" "}
+            <span className="animate-gradient bg-gradient-to-r from-[#FF0044] to-[#00D4FF]  animate-gradient text-transparent bg-clip-text">
+              API
+            </span>
+          </Link>
         </h1>
       </div>
 
