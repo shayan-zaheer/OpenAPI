@@ -52,7 +52,7 @@ const configurePassport = app => {
                 user = await User.create({
                   provider: "google",
                   providerId: profile.id,
-                  displayName: profile.displayName,
+                  username: profile.displayName,
                   email: profile.emails[0].value,
                   profilePhoto: profile.photos[0]?.value || "",
                 });

@@ -5,6 +5,7 @@ const getAPIById = async (req, res) => {
   try {
     // Retrieve the API and populate the owner field
     const api = await API.findById(req.params.id).populate("owner");
+    // const api = await API.find();
     if (!api) {
       return res.status(404).json({ success: false, message: "API not found" });
     }
@@ -13,36 +14,35 @@ const getAPIById = async (req, res) => {
     if (api.visibility === "private") {
       // Ensure the user is authenticated
       if (!req.user) {
-        return res.status(403).json({ 
-          success: false, 
-          message: "Unauthorized: This API is private" 
+        return res.status(403).json({
+          success: false,
+          message: "Unauthorized: This API is private"
         });
       }
-      
+
       // Check if the user is the owner.
       const isOwner = api.owner._id.toString() === req.user.id;
-      
+
       // Check if the user is in the authorizedUsers list.
       // This assumes authorizedUsers is an array of ObjectIds.
       const isAuthorizedUser = api.authorizedUsers && api.authorizedUsers.some(
         userId => userId.toString() === req.user.id
       );
-      
+
       if (!isOwner && !isAuthorizedUser) {
-        return res.status(403).json({ 
-          success: false, 
-          message: "Unauthorized: This API is private" 
+        return res.status(403).json({
+          success: false,
+          message: "Unauthorized: This API is private"
         });
       }
     }
     
-    // If public or authorized, return the API.
     res.status(200).json({ success: true, api });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
     });
   }
 };
@@ -57,23 +57,23 @@ const getUserAPIs = async (req, res) => {
     const APIs = await API.find({ owner: req.user.id }).populate("owner");
 
     if (!APIs.length) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "No APIs found for this user." 
+      return res.status(404).json({
+        success: false,
+        message: "No APIs found for this user."
       });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      count: APIs.length, 
-      APIs 
+    res.status(200).json({
+      success: true,
+      count: APIs.length,
+      APIs
     });
   } catch (error) {
     console.error("Error fetching user APIs:", error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: "Server error. Please try again later.",
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -133,9 +133,9 @@ const updateUserAPI = async (req, res) => {
     // Find the API by its ID
     const existingAPI = await API.findById(APIId);
     if (!existingAPI) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "API not found" 
+      return res.status(404).json({
+        success: false,
+        message: "API not found"
       });
     }
 
@@ -181,9 +181,9 @@ const getApisByLanguage = async (req, res) => {
   try {
     const { language } = req.params;
     if (!language) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Language parameter is required" 
+      return res.status(400).json({
+        success: false,
+        message: "Language parameter is required"
       });
     }
     let filter = { language, visibility: "public" };
@@ -194,10 +194,11 @@ const getApisByLanguage = async (req, res) => {
         language,
         $or: [
           { visibility: "public" },
-          { 
+          {
             $and: [
               { visibility: "private" },
-              { $or: [
+              {
+                $or: [
                   { owner: req.user.id },
                   { authorizedUsers: req.user.id }
                 ]
@@ -209,17 +210,17 @@ const getApisByLanguage = async (req, res) => {
     }
     const apis = await API.find(filter).populate("owner");
     if (!apis.length) {
-      return res.status(404).json({ 
-        success: false, 
-        message: `No APIs found for language: ${language}` 
+      return res.status(404).json({
+        success: false,
+        message: `No APIs found for language: ${language}`
       });
     }
     res.status(200).json({ success: true, count: apis.length, apis });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
     });
   }
 };
@@ -232,32 +233,32 @@ const deleteUserAPI = async (req, res) => {
   try {
     const apiId = req.params.id;
     const existingAPI = await API.findById(apiId);
-    
+
     if (!existingAPI) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "API not found" 
+      return res.status(404).json({
+        success: false,
+        message: "API not found"
       });
     }
 
     // Ensure the authenticated user is the owner of the API
     if (existingAPI.owner.toString() !== req.user.id) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Unauthorized: You do not own this API" 
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: You do not own this API"
       });
     }
 
     await API.findByIdAndDelete(apiId);
-    res.status(200).json({ 
-      success: true, 
-      message: "API deleted successfully" 
+    res.status(200).json({
+      success: true,
+      message: "API deleted successfully"
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
     });
   }
 };
@@ -270,16 +271,18 @@ const getAllAPIs = async (req, res) => {
   try {
 
     let filter = { visibility: "public" };
+    console.log(req.user)
 
     // If the user is authenticated, include private APIs they either own or are authorized to view.
     if (req.user && req.user.id) {
       filter = {
         $or: [
           { visibility: "public" },
-          { 
+          {
             $and: [
               { visibility: "private" },
-              { $or: [
+              {
+                $or: [
                   { owner: req.user.id },
                   { authorizedUsers: req.user.id }
                 ]
@@ -290,16 +293,16 @@ const getAllAPIs = async (req, res) => {
       };
     }
     const apis = await API.find(filter).populate("owner");
-    res.status(200).json({ 
-      success: true, 
-      count: apis.length, 
-      apis 
+    res.status(200).json({
+      success: true,
+      count: apis.length,
+      apis
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
     });
   }
 };
@@ -317,9 +320,9 @@ const updateVote = async (req, res) => {
     // Validate the action value.
     const validActions = ["upvote", "downvote", "withdrawUpvote", "withdrawDownvote"];
     if (!validActions.includes(action)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid vote action. Use one of: upvote, downvote, withdrawUpvote, withdrawDownvote." 
+      return res.status(400).json({
+        success: false,
+        message: "Invalid vote action. Use one of: upvote, downvote, withdrawUpvote, withdrawDownvote."
       });
     }
 
@@ -336,9 +339,9 @@ const updateVote = async (req, res) => {
         authId => authId.toString() === req.user.id
       );
       if (!isOwner && !isAuthorized) {
-        return res.status(403).json({ 
-          success: false, 
-          message: "Unauthorized: Private API" 
+        return res.status(403).json({
+          success: false,
+          message: "Unauthorized: Private API"
         });
       }
     }
@@ -391,16 +394,16 @@ const updateVote = async (req, res) => {
     // Save the updated API document
     const updatedAPI = await api.save();
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Vote updated successfully", 
-      API: updatedAPI 
+    res.status(200).json({
+      success: true,
+      message: "Vote updated successfully",
+      API: updatedAPI
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
     });
   }
 };
