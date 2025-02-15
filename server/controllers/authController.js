@@ -130,28 +130,3 @@ exports.signUp = async(request, response) => {
         });
     }
 }
-
-exports.getAllUsers = async(request, response) => {
-    try{
-        console.log(request.user);
-        let {page, limit, sortBy, order} = request.query;
-
-        page = +page || 1;
-        limit = +limit || 10;
-        sortBy = sortBy || "createdAt";
-        order = order == "desc" ? -1 : 1;
-
-        const skip = (page - 1) * limit;
-
-        const users = await User.find().skip(skip).limit(limit).sort({[sortBy]: order});
-        return response.status(200).json({
-            status: "success",
-            users
-        });
-    } catch(err){
-        return response.status(400).json({
-            status: "fail",
-            message: err.message
-        });
-    }
-}

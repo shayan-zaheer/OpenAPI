@@ -3,10 +3,15 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    avatar: { type: String, default: "" }, // Profile picture URL
+    googleId: { type: String, unique: true, sparse: true }, // Google OAuth support
+    role: { type: String, enum: ["user", "admin"], default: "user" },
+    createdAt: { type: Date, default: Date.now },
   });
   
 

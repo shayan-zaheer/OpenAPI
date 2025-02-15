@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-const userRoute = require("./routes/userRoute");
+const authRoute = require("./routes/authRoute");
 const morgan = require("morgan");
 const configurePassport = require("./utils/passport");
 const app = express();
@@ -26,7 +26,7 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MONGOOSE CONNECTED!"))
 .catch(err => console.error(err));
 
-app.use("/auth", userRoute);
+app.use("/auth", authRoute);
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
