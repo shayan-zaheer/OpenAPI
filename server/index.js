@@ -4,6 +4,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const authRoute = require("./routes/authRoute");
+const userRoute = require("./routes/userRoute")
+const APIRoute = require("./routes/APIRoute")
 const morgan = require("morgan");
 const configurePassport = require("./utils/passport");
 const app = express();
@@ -27,6 +29,8 @@ mongoose.connect(process.env.MONGO_URI)
 .catch(err => console.error(err));
 
 app.use("/auth", authRoute);
+app.use("/user", userRoute);
+app.use("/api", APIRoute);
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
