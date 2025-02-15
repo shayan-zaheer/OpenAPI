@@ -7,6 +7,7 @@ import APIs from "./pages/APIs/APIs";
 import Profile from "./pages/Profile/Profile";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import UploadAPI from "./pages/UploadAPI";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/api" element={<APIs />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/upload" element={<UploadAPI />} />
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>
       <Footer />
