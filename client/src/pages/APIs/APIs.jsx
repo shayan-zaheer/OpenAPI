@@ -1,51 +1,74 @@
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
 import { FiDownload, FiCopy, FiHeart, FiThumbsUp, FiThumbsDown } from "react-icons/fi";
+import { useParams } from "react-router-dom";
 
 const ApiPage = () => {
+  const { id } = useParams();
+  const [api, setApi] = useState(null);
   const [upvotes, setUpvotes] = useState(12);
   const [downvotes, setDownvotes] = useState(3);
   const [favorited, setFavorited] = useState(false);
 
-  const api = {
-    name: "Weather API",
-    code: `const axios = require('axios');
+  useEffect(() => {
+    const getAPI = async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:8000/api/${id}`);
+        setApi(data?.api);
+      } catch (err) {
+        setApi({ failure: err?.response?.data?.message || "This is a private API" });
+      }
+    };
 
-exports.getWeather = async (req, res) => {
-    try {
-        const { city } = req.params;
-        const response = await axios.get(\`https://api.weatherapi.com/v1/current.json?key=API_KEY&q=\${city}\`);
-        res.status(200).json(response.data);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching weather data", error: error.message });
-    }
-};`,
-    documentation: "This API provides real-time weather data for any city. You can fetch temperature, humidity, and weather conditions using a simple GET request.",
-  };
+    getAPI();
+  }, [id]);
 
+  // Show message if API is private
+  if (api?.failure) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full min-h-screen flex items-center justify-center text-center"
+      >
+        <h1 className="text-white text-4xl font-semibold">{api.failure}</h1>
+      </motion.div>
+    );
+  }
+
+  // Handle copy code to clipboard
   const handleCopy = () => {
-    navigator.clipboard.writeText(api.code);
-    alert("Code copied to clipboard!");
+    if (api?.code) {
+      navigator.clipboard.writeText(api.code);
+      alert("Code copied to clipboard!");
+    }
   };
 
+  // Handle download of API code
   const handleDownload = () => {
-    const blob = new Blob([api.code], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${api.name}.js`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    if (api?.code) {
+      const blob = new Blob([api.code], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${api.name}.js`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   };
 
   return (
-    <motion.div
+    <div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       className="w-full min-h-screen bg-[#1a1c1ff8] flex flex-col items-center justify-start overflow-hidden"
     >
+      {/* API Header Section */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -63,15 +86,16 @@ exports.getWeather = async (req, res) => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-white text-4xl font-semibold"
           >
-            {api.name}
+            {api?.name || "API Not Found"}
           </motion.h1>
+
           <motion.p
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-gray-400 mt-2 text-lg"
+            className="text-gray-400 mt-2 text-lg text-center"
           >
-            Easily fetch real-time weather data with this API.
+            Easily fetch real-time data with this API.
           </motion.p>
 
           <motion.div
@@ -85,12 +109,14 @@ exports.getWeather = async (req, res) => {
         </div>
       </motion.div>
 
+      {/* Code Section */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.5 }}
         className="w-9/12 bg-[#22252b] p-6 rounded-xl shadow-lg mt-10 relative"
       >
+        {/* Top Right Icons */}
         <div className="absolute top-4 right-4 flex gap-4">
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -115,10 +141,12 @@ exports.getWeather = async (req, res) => {
           </motion.button>
         </div>
 
+        {/* Code Block */}
         <pre className="bg-[#1a1c1f] text-white text-sm p-4 my-6 rounded-lg overflow-x-auto">
-          <code>{api.code}</code>
+          <code>{api?.code || "// No code available for this API"}</code>
         </pre>
 
+        {/* Upvote & Downvote Section */}
         <div className="flex items-center gap-6">
           <motion.button
             whileTap={{ scale: 0.9 }}
@@ -137,16 +165,14 @@ exports.getWeather = async (req, res) => {
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
+      {/* Documentation Section */}
+      <div
         className="w-9/12 p-8 mt-10 bg-[#22252b] rounded-xl shadow-lg"
       >
         <h2 className="text-white text-2xl font-semibold">Documentation</h2>
-        <p className="text-gray-400 mt-2">{api.documentation}</p>
-      </motion.div>
-    </motion.div>
+        <p className="text-gray-400 mt-2">{api?.documentation || "No documentation available."}</p>
+      </div>
+    </div>
   );
 };
 
