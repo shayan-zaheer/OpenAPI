@@ -63,11 +63,17 @@ const ProfilePage = () => {
         </div>
 
         <div className="relative w-full min-h-full bg-black bg-opacity-60 md:rounded-2xl p-10 shadow-lg flex flex-col items-center">
-          <img
-            src={user?.profilePhoto || "/default-avatar.png"}
-            alt="Profile"
-            className="w-24 h-24 rounded-full border-2 border-[#6A00F4] shadow-md"
-          />
+        {!user.profilePhoto ? (
+                  <div className="w-16 h-16 rounded-full border-white border-2 text-white flex items-center justify-center bg-gradient-to-r from-[#FF0044] to-[#00D4FF] text-2xl">
+                    {user.username[0].toUpperCase()}
+                  </div>
+                ) : (
+                  <img
+                    src={user.profilePhoto || "/default.png"}
+                    alt="User"
+                    className="w-16 h-16 rounded-full border-2 border-white"
+                  />
+                )}
 
           <h2 className="text-white text-3xl font-semibold mt-4">
             {user?.username}
@@ -96,7 +102,7 @@ const ProfilePage = () => {
           {loggedInUser?._id === user?._id
             ? "Your Uploaded "
             : `${user.username}'s Uploaded `}
-          <span className="bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4] text-transparent bg-clip-text">
+          <span className="bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4] text-transparent bg-clip-text animate-gradient">
             APIs
           </span>
         </motion.h1>
