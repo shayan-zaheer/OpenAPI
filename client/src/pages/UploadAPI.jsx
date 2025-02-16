@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const UploadAPI = () => {
   const user = useSelector((state) => state.user.user);
@@ -22,30 +23,6 @@ const UploadAPI = () => {
     setApiData({ ...apiData, [e.target.name]: e.target.value });
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setMessage("");
-
-  //   try {
-  //     const response = await axios.post("http://localhost:8000/api/upload", apiData);
-  //     setMessage("API uploaded successfully!");
-  //     setApiData({
-  //       name: "",
-  //       language: "javascript",
-  //       documentation: "",
-  //       code: "",
-  //       owner: user?._id || "",
-  //       visibility: "public",
-  //       cost: 0,
-  //     });
-  //   } catch (error) {
-  //     setMessage(error.response?.data?.message || "Error uploading API.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -54,6 +31,7 @@ const UploadAPI = () => {
     try {
       const response = await axios.post("http://localhost:8000/api/", apiData);
       setMessage("API uploaded successfully!");
+      toast.success("API uploaded successfully!");
       setApiData({
         name: "",
         language: "javascript",
@@ -68,6 +46,20 @@ const UploadAPI = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleReset = () => {
+    setApiData({
+      name: "",
+      language: "javascript",
+      documentation: "",
+      code: "",
+      owner: user?._id || "",
+      visibility: "public",
+      cost: 0,
+    });
+    setMessage("");
+    toast.success("Form reset!");
   };
 
   return (
@@ -104,6 +96,7 @@ const UploadAPI = () => {
 
             <form
               onSubmit={handleSubmit}
+              onReset={handleReset}
               className="w-full mt-6 bg-[#22252b] p-8 rounded-lg shadow-2xl"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

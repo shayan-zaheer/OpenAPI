@@ -1,7 +1,7 @@
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { userActions } from "../store/userSlice";
@@ -10,6 +10,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const { setUser: setUserAction } = userActions;
   const user = useSelector((state) => state.user.user);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -94,14 +95,20 @@ const Navbar = () => {
         {user ? (
           <>
             <div className="flex items-center space-x-3">
-              <img
-                src={user.profilePhoto}
-                alt="User"
-                className="w-10 h-10 rounded-full border-2 border-white"
-              />
-              <span className="text-white font-semibold">
-                {user.displayName}
-              </span>
+              <Link to={`/profile/${user._id}`}>
+                {!user.profilePhoto ? (
+                  <div className="w-10 h-10 rounded-full border-white border-2 text-white flex items-center justify-center bg-gradient-to-r from-[#FF0044] to-[#00D4FF]">
+                    {user.username[0].toUpperCase()}
+                  </div>
+                ) : (
+                  <img
+                    src={user.profilePhoto || "/default.png"}
+                    alt="User"
+                    className="w-10 h-10 rounded-full border-2 border-white"
+                  />
+                )}
+              </Link>
+              <span className="text-white font-semibold">{user.username}</span>
             </div>
             <button
               onClick={logout}
@@ -112,7 +119,10 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <button className="navbar-button bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+            <button
+              className="navbar-button bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+              onClick={() => navigate("/login")}
+            >
               Login
             </button>
             <button
@@ -170,13 +180,21 @@ const Navbar = () => {
                   </li>
                   <li className="h-16 px-4 flex items-center justify-center">
                     <div className="flex items-center space-x-3">
-                      <img
-                        src={user.profilePhoto}
-                        alt="User"
-                        className="w-10 h-10 rounded-full border-2 border-white"
-                      />
+                      <Link to={`/profile/${user._id}`}>
+                        {!user.profilePhoto ? (
+                          <div className="w-10 h-10 rounded-full border-white border-2 text-white flex items-center justify-center bg-gradient-to-r from-[#FF0044] to-[#00D4FF]">
+                            {user.username[0].toUpperCase()}
+                          </div>
+                        ) : (
+                          <img
+                            src={user.profilePhoto || "/default.png"}
+                            alt="User"
+                            className="w-10 h-10 rounded-full border-2 border-white"
+                          />
+                        )}
+                      </Link>
                       <span className="text-white font-semibold">
-                        {user.displayName}
+                        {user.username}
                       </span>
                     </div>
                   </li>
@@ -192,7 +210,13 @@ const Navbar = () => {
               ) : (
                 <>
                   <li className="h-16 px-4 flex items-center justify-center">
-                    <button className="navbar-button bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                    <button
+                      className="navbar-button bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                      onClick={() => {
+                        setOpenMenu(false);
+                        navigate("/login");
+                      }}
+                    >
                       Login
                     </button>
                   </li>

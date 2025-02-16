@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { FiEdit } from "react-icons/fi";
 import axios from "axios";
 
 const ProfilePage = () => {
@@ -16,10 +17,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profileId = id || loggedInUser?._id;
-        const { data } = await axios.get(
-          `http://localhost:8000/user/${profileId}`
-        );
+        const { data } = await axios.get(`http://localhost:8000/user/${id}`);
         setUser(data?.user);
       } catch (error) {
         setMessage("Error fetching profile.");
@@ -30,12 +28,9 @@ const ProfilePage = () => {
 
     const fetchAPIs = async () => {
       try {
-        const profileId = id || loggedInUser?._id;
         const { data } = await axios.get(
-          `http://localhost:8000/api/user/${profileId}`,
-          {
-            withCredentials: true,
-          }
+          `http://localhost:8000/api/user/${id}`,
+          { withCredentials: true }
         );
         console.log(data);
         setApis(data?.APIs || []);
@@ -101,7 +96,7 @@ const ProfilePage = () => {
           {loggedInUser?._id === user?._id
             ? "Your Uploaded "
             : `${user.username}'s Uploaded `}
-          <span className="bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4] animate-gradient text-transparent bg-clip-text">
+          <span className="bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4] text-transparent bg-clip-text">
             APIs
           </span>
         </motion.h1>
@@ -109,34 +104,44 @@ const ProfilePage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {apis.length > 0 ? (
             apis.map((api) => (
-              <Link to={`http://localhost:5173/api/${api._id}`}>
-                <motion.div
-                  key={api._id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.03 }}
-                  className="bg-[#22252b] p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl"
-                >
-                  <h2 className="text-white text-xl font-semibold">
+              <motion.div
+                key={api._id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.03 }}
+                className="relative bg-[#22252b] p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl"
+              >
+                {loggedInUser?._id === user?._id && (
+                  <Link
+                    to={`/api/update/${api._id}`}
+                    className="z-40 absolute top-3 right-3 text-gray-400 hover:text-white transition"
+                  >
+                    <FiEdit size={20} />
+                  </Link>
+                )}
+
+                <h2 className="text-white text-xl font-semibold hover:underline">
+                  <Link to={`http://localhost:5173/api/${api._id}`}>
                     {api.name}
-                  </h2>
-                  <p className="text-gray-400 mt-2 text-sm">
-                    {api.documentation.slice(0, 100)}...
-                  </p>
-                  <div className="flex justify-between items-center mt-4">
-                    <span
-                      className={`text-sm font-semibold ${
-                        api.visibility === "public"
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {api.visibility.toUpperCase()}
-                    </span>
-                    <span className="text-white text-sm">${api.cost}</span>
-                  </div>
-                </motion.div>
-              </Link>
+                  </Link>
+                </h2>
+                <p className="text-gray-400 mt-2 text-sm">
+                  {api.documentation.slice(0, 100)}...
+                </p>
+
+                <div className="flex justify-between items-center mt-4">
+                  <span
+                    className={`text-sm font-semibold ${
+                      api.visibility === "public"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    {api.visibility.toUpperCase()}
+                  </span>
+                  <span className="text-white text-sm">${api.cost}</span>
+                </div>
+              </motion.div>
             ))
           ) : (
             <p className="text-gray-400 mt-4 text-center">

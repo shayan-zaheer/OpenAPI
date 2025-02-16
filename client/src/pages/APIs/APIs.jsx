@@ -7,8 +7,9 @@ import {
   FiHeart,
   FiThumbsUp,
   FiThumbsDown,
+  FiLock,
 } from "react-icons/fi";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const ApiPage = () => {
@@ -16,23 +17,30 @@ const ApiPage = () => {
   const [api, setApi] = useState(null);
   const [upvotes, setUpvotes] = useState(false);
   const [downvotes, setDownvotes] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
   const user = useSelector((state) => state.user.user);
-  console.log(user);
 
-  const getAPI = async () => {
-    try {
-      const { data } = await axios.get(`http://localhost:8000/api/${id}`);
-      setApi(data?.api);
-      console.log(data?.api);
-    } catch (err) {
-      setApi({
-        failure: err?.response?.data?.message || "This is a private API",
-      });
-    }
-  };
   useEffect(() => {
+    const getAPI = async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:8000/api/${id}`);
+        setApi(data?.api);
+
+        if (
+          data.api.cost === 0 ||
+          data.api.authorizedUsers.includes(user?._id)
+        ) {
+          setAuthorized(true);
+        }
+      } catch (err) {
+        setApi({
+          failure: err?.response?.data?.message || "This is a private API",
+        });
+      }
+    };
+
     getAPI();
-  }, [id]);
+  }, [id, user]);
 
   if (api?.failure) {
     return (
@@ -48,14 +56,14 @@ const ApiPage = () => {
   }
 
   const handleCopy = () => {
-    if (api?.code) {
+    if (authorized && api?.code) {
       navigator.clipboard.writeText(api.code);
       alert("Code copied to clipboard!");
     }
   };
 
   const handleDownload = () => {
-    if (api?.code) {
+    if (authorized && api?.code) {
       const blob = new Blob([api.code], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -67,55 +75,8 @@ const ApiPage = () => {
     }
   };
 
-  const handleUpVote = async () => {
-    if (user) {
-      let action = upvotes ? "withdrawUpvote" : "upvote";
-      setUpvotes(!upvotes);
-      try {
-        const response = await axios.patch(
-          `http://localhost:8000/api/vote/${id}`,
-          {
-            action,
-          }
-        );
-        if (response?.data?.api) {
-          getAPI();
-        }
-        console.log(response);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  };
-
-  const handleDownvote = async () => {
-    if (user) {
-      let action = downvotes ? "withdrawDownvote" : "downvote";
-      setDownvotes(!downvotes);
-      try {
-        const response = await axios.patch(
-          `http://localhost:8000/api/vote/${id}`,
-          {
-            action,
-          }
-        );
-        if (response?.data?.api) {
-          getAPI();
-        }
-        console.log(response);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  };
-
   return (
-    <div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="w-full min-h-screen bg-[#1a1c1ff8] flex flex-col items-center justify-start overflow-hidden "
-    >
+    <div className="w-full min-h-screen bg-[#1a1c1ff8] flex flex-col items-center justify-start overflow-hidden">
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -129,7 +90,6 @@ const ApiPage = () => {
             className="object-cover rounded-2xl w-full h-full"
           />
         </div>
-
         <div className="relative w-full min-h-full bg-black bg-opacity-60 md:rounded-2xl p-10 shadow-lg flex flex-col items-center">
           <motion.h1
             initial={{ y: -20, opacity: 0 }}
@@ -140,14 +100,40 @@ const ApiPage = () => {
             {api?.name || "API Not Found"}
           </motion.h1>
 
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-4 bg-green-500 text-white px-4 py-1 rounded-full text-sm flex items-center"
+          {api?.cost > 0 ? (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-4 bg-red-500 text-white px-4 py-1 rounded-full text-sm flex items-center"
+            >
+              🔒 Paid API - ${api?.cost}
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-4 bg-green-500 text-white px-4 py-1 rounded-full text-sm flex items-center"
+            >
+              ✅ Free API
+            </motion.div>
+          )}
+
+          <motion.p
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 10, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-white text-lg font-semibold"
           >
-            ✅ Safe to use
-          </motion.div>
+            Owned by:{" "}
+            <Link
+              to={`http://localhost:5173/profile/${api?.owner?._id}`}
+              className="text-blue-400"
+            >
+              {api?.owner?.username}
+            </Link>
+          </motion.p>
         </div>
       </motion.div>
 
@@ -162,7 +148,7 @@ const ApiPage = () => {
             whileHover={{ scale: 1.1 }}
             onClick={handleDownload}
             className="text-gray-400 hover:text-white transition"
-            disabled={!user}
+            disabled={!authorized}
           >
             <FiDownload size={20} />
           </motion.button>
@@ -170,50 +156,44 @@ const ApiPage = () => {
             whileHover={{ scale: 1.1 }}
             onClick={handleCopy}
             className="text-gray-400 hover:text-white transition"
+            disabled={!authorized}
           >
             <FiCopy size={20} />
           </motion.button>
         </div>
 
-        {/* Code Block */}
-        <pre className="bg-[#1a1c1f] text-white text-sm p-4 my-6 rounded-lg overflow-x-auto">
-          <code>{api?.code || "// No code available for this API"}</code>
+        <pre
+          className={`bg-[#1a1c1f] text-white text-sm p-4 my-6 rounded-lg overflow-x-auto ${
+            !authorized && "blur-md select-none"
+          }`}
+        >
+          <code>
+            {authorized ? api?.code : "// You need access to view this code"}
+          </code>
         </pre>
 
-        {/* Upvote & Downvote Section */}
+        {!authorized && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <FiLock size={40} className="text-gray-400" />
+          </div>
+        )}
+
         <div className="flex items-center gap-6">
           <motion.button
             whileTap={{ scale: 0.9 }}
-            className={`flex items-center text-gray-400 hover:text-white transition ${
-              upvotes && "text-white"
-            }`}
+            className="flex items-center text-gray-400 hover:text-white transition"
           >
-            <FiThumbsUp
-              size={20}
-              className={`mr-2 ${upvotes && "text-white"}`}
-              onClick={() => {
-                handleUpVote();
-              }}
-            />{" "}
-            {api?.upvotes}
+            <FiThumbsUp size={20} className="mr-1" /> {api?.upvotes}
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
-            className={`flex items-center text-gray-400 hover:text-white transition ${
-              downvotes && "text-white"
-            }`}
+            className="flex items-center text-gray-400 hover:text-white transition"
           >
-            <FiThumbsDown
-              size={20}
-              className={`mr-2 ${downvotes && "text-white"}`}
-              onClick={handleDownvote}
-            />{" "}
-            {api?.downvotes}
+            <FiThumbsDown size={20} className="mr-1" /> {api?.downvotes}
           </motion.button>
         </div>
       </motion.div>
 
-      {/* Documentation Section */}
       <div className="w-9/12 p-8 mt-10 bg-[#22252b] rounded-xl shadow-lg">
         <h2 className="text-white text-2xl font-semibold">Documentation</h2>
         <p className="text-gray-400 mt-2">

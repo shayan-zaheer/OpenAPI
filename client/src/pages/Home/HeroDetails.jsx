@@ -11,9 +11,9 @@ const HeroDetails = () => {
     <motion.div
       initial={{ y: 200, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="flex flex-col  max-sm:w-full sm:w-full md:w-full pr-5 max-md:pt-10 md:pt-5"
+      className="flex flex-col  max-sm:w-full sm:w-full md:w-full pr-5 max-md:pt-10 md:pt-5 lg:justify-center items-center text-center"
     >
-      <h1 className="text-white text-6xl sm:text-6xl md:text-7xl font-semibold lg:w-full max-sm:w-full sm:w-11/12 max-sm:text-4xl tracking-wider ">
+      <h1 className="text-white text-6xl sm:text-6xl md:text-6xl font-semibold lg:w-full max-sm:w-11/12 sm:w-11/12 max-sm:text-6xl tracking-wider ">
         {" "}
         Discover & Share{" "}
         <span className="bg-gradient-to-r from-[#FF0044] to-[#00D4FF]  animate-gradient text-transparent bg-clip-text ">
@@ -21,8 +21,8 @@ const HeroDetails = () => {
         </span>{" "}
         with Ease
       </h1>
-      <div className=" my-4">
-        <h1 className="text-slate-300 w-11/12 sm:text-lg md:text-xl font-semibold lg:w-10/12">
+      <div className=" my-4 max-sm:pl-12">
+        <h1 className="text-slate-300 w-11/12 sm:text-lg md:text-xl font-semibold lg:w-full italic">
           Find free and paid APIs in seconds. Explore, upload, and manage APIs
           effortlessly.
         </h1>
