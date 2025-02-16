@@ -28,7 +28,7 @@ const UploadAPI = () => {
     setMessage("");
 
     try {
-      const response = await axios.post("http://localhost:8000/api/upload", apiData);
+      const response = await axios.post("http://localhost:8000/api/", apiData);
       setMessage("API uploaded successfully!");
       setApiData({
         name: "",

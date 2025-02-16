@@ -12,7 +12,6 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const ApiPage = () => {
-  const user = useSelector((state) => state.user.user);
   const { id } = useParams();
   const [api, setApi] = useState(null);
   const [upvotes, setUpvotes] = useState(false);
