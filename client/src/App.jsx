@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import UploadAPI from "./pages/UploadAPI";
 import ApiPage from "./pages/APIs/APIs";
 import BrowseApis from "./pages/Search/SearchAPI";
+import UpdateAPI from "./pages/APIs/UpdateAPI";
 
 const App = () => {
   return (
@@ -18,7 +19,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/api/:id" element={<ApiPage />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/api/update/:id" element={<UpdateAPI />} />
+        <Route path="/profile/:id" element={<Profile />} />
         <Route path="/upload" element={<UploadAPI />} />
         <Route path="/search" element={<BrowseApis />} />
         <Route path="*" element={<div>Not Found</div>} />

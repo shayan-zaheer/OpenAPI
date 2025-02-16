@@ -3,8 +3,10 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { FiDownload, FiCopy, FiHeart, FiThumbsUp, FiThumbsDown } from "react-icons/fi";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ApiPage = () => {
+  const user = useSelector((state) => state.user.user);
   const { id } = useParams();
   const [api, setApi] = useState(null);
   const [upvotes, setUpvotes] = useState(12);
@@ -37,7 +39,6 @@ const ApiPage = () => {
     );
   }
 
-  // Handle copy code to clipboard
   const handleCopy = () => {
     if (api?.code) {
       navigator.clipboard.writeText(api.code);
@@ -45,7 +46,6 @@ const ApiPage = () => {
     }
   };
 
-  // Handle download of API code
   const handleDownload = () => {
     if (api?.code) {
       const blob = new Blob([api.code], { type: "text/plain" });
@@ -66,7 +66,6 @@ const ApiPage = () => {
       transition={{ duration: 0.5 }}
       className="w-full min-h-screen bg-[#1a1c1ff8] flex flex-col items-center justify-start overflow-hidden"
     >
-      {/* API Header Section */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -91,15 +90,6 @@ const ApiPage = () => {
             {api?.name || "API Not Found"}
           </motion.h1>
 
-          <motion.p
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-gray-400 mt-2 text-lg text-center"
-          >
-            Easily fetch real-time data with this API.
-          </motion.p>
-
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -111,19 +101,18 @@ const ApiPage = () => {
         </div>
       </motion.div>
 
-      {/* Code Section */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.5 }}
         className="w-9/12 bg-[#22252b] p-6 rounded-xl shadow-lg mt-10 relative"
       >
-        {/* Top Right Icons */}
         <div className="absolute top-4 right-4 flex gap-4">
           <motion.button
             whileHover={{ scale: 1.1 }}
             onClick={handleDownload}
             className="text-gray-400 hover:text-white transition"
+            disabled={!user}
           >
             <FiDownload size={20} />
           </motion.button>

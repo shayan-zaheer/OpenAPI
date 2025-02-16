@@ -3,16 +3,12 @@ const API = require("../models/API");
 
 const getAPIById = async (req, res) => {
   try {
-    // Retrieve the API and populate the owner field
     const api = await API.findById(req.params.id).populate("owner");
-    // const api = await API.find();
     if (!api) {
       return res.status(404).json({ success: false, message: "API not found" });
     }
 
-    // If the API is private, allow only the owner or an authorized user to access it.
     if (api.visibility === "private") {
-      // Ensure the user is authenticated
       if (!req.user) {
         return res.status(403).json({
           success: false,
@@ -20,11 +16,8 @@ const getAPIById = async (req, res) => {
         });
       }
 
-      // Check if the user is the owner.
       const isOwner = api.owner._id.toString() === req.user.id;
 
-      // Check if the user is in the authorizedUsers list.
-      // This assumes authorizedUsers is an array of ObjectIds.
       const isAuthorizedUser = api.authorizedUsers && api.authorizedUsers.some(
         userId => userId.toString() === req.user.id
       );
@@ -54,7 +47,34 @@ const getAPIById = async (req, res) => {
  */
 const getUserAPIs = async (req, res) => {
   try {
+    console.log(req.user.id);
     const APIs = await API.find({ owner: req.user.id }).populate("owner");
+
+    if (!APIs.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No APIs found for this user."
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: APIs.length,
+      APIs
+    });
+  } catch (error) {
+    console.error("Error fetching user APIs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+      error: error.message
+    });
+  }
+};
+
+const getAPIsByUser = async (req, res) => {
+  try {
+    const APIs = await API.find({ owner: req.params.id }).populate("owner");
 
     if (!APIs.length) {
       return res.status(404).json({
@@ -84,26 +104,22 @@ const getUserAPIs = async (req, res) => {
  */
 const addUserAPI = async (req, res) => {
   try {
-    // Destructure necessary fields from the request body
-    const { name, code, documentation, language, baseUrl, version, visibility, cost } = req.body;
+    console.log(req.user);
+    const { name, code, documentation, owner, language, version, visibility, cost } = req.body;
 
-    // Create a new API document with the authenticated user as the owner
     const newAPI = new API({
       name,
       code,
       documentation,
       language,
-      baseUrl,
-      owner: req.user.id, // Set owner from the authenticated user
+      owner,
       version: version || "1.0.0",
       visibility: visibility || "public",
       cost: cost || 0,
     });
 
-    // Save the new API to the database
     const savedAPI = await newAPI.save();
 
-    // Send a success response with the new API data
     res.status(201).json({
       success: true,
       message: "API added successfully",
@@ -139,7 +155,6 @@ const updateUserAPI = async (req, res) => {
       });
     }
 
-    // Ensure the authenticated user is the owner of the API
     if (existingAPI.owner.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -147,12 +162,10 @@ const updateUserAPI = async (req, res) => {
       });
     }
 
-    // If a version parameter is provided, update the request body with it.
     if (newVersion) {
       req.body.version = newVersion;
     }
 
-    // Update the API document with the data from the request body.
     const updatedAPI = await API.findByIdAndUpdate(APIId, req.body, {
       new: true,
       runValidators: true,
@@ -173,10 +186,6 @@ const updateUserAPI = async (req, res) => {
   }
 };
 
-/**
- * Get all APIs for a specific language.
- * GET /api/apis/language/:language
- */
 const getApisByLanguage = async (req, res) => {
   try {
     const { language } = req.params;
@@ -417,5 +426,6 @@ module.exports = {
   deleteUserAPI,
   getAllAPIs,
   getAPIById,
-  updateVote
+  updateVote,
+  getAPIsByUser
 };
