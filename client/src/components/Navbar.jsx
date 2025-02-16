@@ -153,20 +153,21 @@ const Navbar = () => {
                 className="h-16 border-b px-4 flex items-center"
                 onClick={() => setOpenMenu(false)}
               >
-                <Link to={"/apis"} className="responsive-menu-links">
+                <Link to={"/allApis"} className="responsive-menu-links">
                   APIs
                 </Link>
               </li>
-              <li
-                className="h-16 border-b px-4 flex items-center"
-                onClick={() => setOpenMenu(false)}
-              >
-                <Link to={"/profile"} className="responsive-menu-links">
-                  Profile
-                </Link>
-              </li>
+
               {user ? (
                 <>
+                  <li
+                    className="h-16 border-b px-4 flex items-center"
+                    onClick={() => setOpenMenu(false)}
+                  >
+                    <Link to={"/upload"} className="responsive-menu-links">
+                      Upload
+                    </Link>
+                  </li>
                   <li className="h-16 px-4 flex items-center justify-center">
                     <div className="flex items-center space-x-3">
                       <img

@@ -28,7 +28,7 @@ const HeroDetails = () => {
         </h1>
       </div>
       <div className="flex gap-x-10 max-sm:gap-x-5">
-        <Link to={"/apis"}>
+        <Link to={"/Allapis"}>
           <button className="relative px-6 py-3 font-semibold text-white bg-transparent border border-white hover:border-transparent overflow-hidden group rounded-sm">
             <span className="absolute inset-0 bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4] transition-all duration-300 ease-out transform scale-x-0 origin-left group-hover:scale-x-100"></span>
             <span className="relative z-10 text-white">Explore APIs</span>

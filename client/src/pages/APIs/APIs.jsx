@@ -19,19 +19,18 @@ const ApiPage = () => {
   const user = useSelector((state) => state.user.user);
   console.log(user);
 
+  const getAPI = async () => {
+    try {
+      const { data } = await axios.get(`http://localhost:8000/api/${id}`);
+      setApi(data?.api);
+      console.log(data?.api);
+    } catch (err) {
+      setApi({
+        failure: err?.response?.data?.message || "This is a private API",
+      });
+    }
+  };
   useEffect(() => {
-    const getAPI = async () => {
-      try {
-        const { data } = await axios.get(`http://localhost:8000/api/${id}`);
-        setApi(data?.api);
-        console.log(data?.api);
-      } catch (err) {
-        setApi({
-          failure: err?.response?.data?.message || "This is a private API",
-        });
-      }
-    };
-
     getAPI();
   }, [id]);
 
@@ -48,7 +47,6 @@ const ApiPage = () => {
     );
   }
 
-  // Handle copy code to clipboard
   const handleCopy = () => {
     if (api?.code) {
       navigator.clipboard.writeText(api.code);
@@ -56,7 +54,6 @@ const ApiPage = () => {
     }
   };
 
-  // Handle download of API code
   const handleDownload = () => {
     if (api?.code) {
       const blob = new Blob([api.code], { type: "text/plain" });
@@ -72,14 +69,8 @@ const ApiPage = () => {
 
   const handleUpVote = async () => {
     if (user) {
-      let action = "";
-      if (upvotes) {
-        action = "withdrawUpvote";
-        setUpvotes(false);
-      } else {
-        action = "upvote";
-        setUpvotes(true);
-      }
+      let action = upvotes ? "withdrawUpvote" : "upvote";
+      setUpvotes(!upvotes);
       try {
         const response = await axios.patch(
           `http://localhost:8000/api/vote/${id}`,
@@ -88,7 +79,7 @@ const ApiPage = () => {
           }
         );
         if (response?.data?.api) {
-          setApi(response?.data?.api);
+          getAPI();
         }
         console.log(response);
       } catch (err) {
@@ -99,14 +90,8 @@ const ApiPage = () => {
 
   const handleDownvote = async () => {
     if (user) {
-      let action = "";
-      if (downvotes) {
-        action = "withdrawDownvote";
-        setDownvotes(false);
-      } else {
-        action = "downvote";
-        setDownvotes(true);
-      }
+      let action = downvotes ? "withdrawDownvote" : "downvote";
+      setDownvotes(!downvotes);
       try {
         const response = await axios.patch(
           `http://localhost:8000/api/vote/${id}`,
@@ -115,7 +100,7 @@ const ApiPage = () => {
           }
         );
         if (response?.data?.api) {
-          setApi(response?.data?.api);
+          getAPI();
         }
         console.log(response);
       } catch (err) {
@@ -129,9 +114,8 @@ const ApiPage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="w-full min-h-screen bg-[#1a1c1ff8] flex flex-col items-center justify-start overflow-hidden"
+      className="w-full min-h-screen bg-[#1a1c1ff8] flex flex-col items-center justify-start overflow-hidden "
     >
-      {/* API Header Section */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -156,15 +140,6 @@ const ApiPage = () => {
             {api?.name || "API Not Found"}
           </motion.h1>
 
-          <motion.p
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-gray-400 mt-2 text-lg text-center"
-          >
-            Easily fetch real-time data with this API.
-          </motion.p>
-
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -176,19 +151,18 @@ const ApiPage = () => {
         </div>
       </motion.div>
 
-      {/* Code Section */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.5 }}
         className="w-9/12 bg-[#22252b] p-6 rounded-xl shadow-lg mt-10 relative"
       >
-        {/* Top Right Icons */}
         <div className="absolute top-4 right-4 flex gap-4">
           <motion.button
             whileHover={{ scale: 1.1 }}
             onClick={handleDownload}
             className="text-gray-400 hover:text-white transition"
+            disabled={!user}
           >
             <FiDownload size={20} />
           </motion.button>
@@ -216,7 +190,7 @@ const ApiPage = () => {
           >
             <FiThumbsUp
               size={20}
-              className="mr-1"
+              className={`mr-2 ${upvotes && "text-white"}`}
               onClick={() => {
                 handleUpVote();
               }}
@@ -229,7 +203,11 @@ const ApiPage = () => {
               downvotes && "text-white"
             }`}
           >
-            <FiThumbsDown size={20} className="mr-1" onClick={handleDownvote} />{" "}
+            <FiThumbsDown
+              size={20}
+              className={`mr-2 ${downvotes && "text-white"}`}
+              onClick={handleDownvote}
+            />{" "}
             {api?.downvotes}
           </motion.button>
         </div>
