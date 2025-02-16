@@ -1,25 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
-import { FiDownload, FiCopy, FiHeart, FiThumbsUp, FiThumbsDown } from "react-icons/fi";
+import {
+  FiDownload,
+  FiCopy,
+  FiHeart,
+  FiThumbsUp,
+  FiThumbsDown,
+} from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const ApiPage = () => {
-  const user = useSelector((state) => state.user.user);
   const { id } = useParams();
   const [api, setApi] = useState(null);
-  const [upvotes, setUpvotes] = useState(12);
-  const [downvotes, setDownvotes] = useState(3);
-  const [favorited, setFavorited] = useState(false);
+  const [upvotes, setUpvotes] = useState(false);
+  const [downvotes, setDownvotes] = useState(false);
+  const user = useSelector((state) => state.user.user);
+  console.log(user);
 
   useEffect(() => {
     const getAPI = async () => {
       try {
         const { data } = await axios.get(`http://localhost:8000/api/${id}`);
         setApi(data?.api);
+        console.log(data?.api);
       } catch (err) {
-        setApi({ failure: err?.response?.data?.message || "This is a private API" });
+        setApi({
+          failure: err?.response?.data?.message || "This is a private API",
+        });
       }
     };
 
@@ -56,6 +65,60 @@ const ApiPage = () => {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    }
+  };
+
+  const handleUpVote = async () => {
+    if (user) {
+      let action = "";
+      if (upvotes) {
+        action = "withdrawUpvote";
+        setUpvotes(false);
+      } else {
+        action = "upvote";
+        setUpvotes(true);
+      }
+      try {
+        const response = await axios.patch(
+          `http://localhost:8000/api/vote/${id}`,
+          {
+            action,
+          }
+        );
+        if (response?.data?.api) {
+          setApi(response?.data?.api);
+        }
+        console.log(response);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
+
+  const handleDownvote = async () => {
+    if (user) {
+      let action = "";
+      if (downvotes) {
+        action = "withdrawDownvote";
+        setDownvotes(false);
+      } else {
+        action = "downvote";
+        setDownvotes(true);
+      }
+      try {
+        const response = await axios.patch(
+          `http://localhost:8000/api/vote/${id}`,
+          {
+            action,
+          }
+        );
+        if (response?.data?.api) {
+          setApi(response?.data?.api);
+        }
+        console.log(response);
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 
@@ -123,15 +186,6 @@ const ApiPage = () => {
           >
             <FiCopy size={20} />
           </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            onClick={() => setFavorited(!favorited)}
-            className={`transition ${
-              favorited ? "text-red-500" : "text-gray-400"
-            }`}
-          >
-            <FiHeart size={20} />
-          </motion.button>
         </div>
 
         {/* Code Block */}
@@ -143,31 +197,40 @@ const ApiPage = () => {
         <div className="flex items-center gap-6">
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => setUpvotes(upvotes + 1)}
-            className="flex items-center text-gray-400 hover:text-white transition"
+            className={`flex items-center text-gray-400 hover:text-white transition ${
+              upvotes && "text-white"
+            }`}
           >
-            <FiThumbsUp size={20} className="mr-1" /> {upvotes}
+            <FiThumbsUp
+              size={20}
+              className="mr-1"
+              onClick={() => {
+                handleUpVote();
+              }}
+            />{" "}
+            {api?.upvotes}
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => setDownvotes(downvotes + 1)}
-            className="flex items-center text-gray-400 hover:text-white transition"
+            className={`flex items-center text-gray-400 hover:text-white transition ${
+              downvotes && "text-white"
+            }`}
           >
-            <FiThumbsDown size={20} className="mr-1" /> {downvotes}
+            <FiThumbsDown size={20} className="mr-1" onClick={handleDownvote} />{" "}
+            {api?.downvotes}
           </motion.button>
         </div>
       </motion.div>
 
       {/* Documentation Section */}
-      <div
-        className="w-9/12 p-8 mt-10 bg-[#22252b] rounded-xl shadow-lg"
-      >
+      <div className="w-9/12 p-8 mt-10 bg-[#22252b] rounded-xl shadow-lg">
         <h2 className="text-white text-2xl font-semibold">Documentation</h2>
-        <p className="text-gray-400 mt-2">{api?.documentation || "No documentation available."}</p>
+        <p className="text-gray-400 mt-2">
+          {api?.documentation || "No documentation available."}
+        </p>
       </div>
     </div>
   );
 };
 
 export default ApiPage;
-

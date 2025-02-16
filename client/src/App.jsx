@@ -3,9 +3,7 @@ import { Routes, Route, BrowserRouter } from "react-router-dom";
 
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home/Home";
-import APIs from "./pages/APIs/APIs";
 import Profile from "./pages/Profile/Profile";
-import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import UploadAPI from "./pages/UploadAPI";
 import ApiPage from "./pages/APIs/APIs";
@@ -22,7 +20,7 @@ const App = () => {
         <Route path="/api/update/:id" element={<UpdateAPI />} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/upload" element={<UploadAPI />} />
-        <Route path="/search" element={<BrowseApis />} />
+        <Route path="/allApis/:language?" element={<BrowseApis />} />
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>
       {/* <Footer /> */}

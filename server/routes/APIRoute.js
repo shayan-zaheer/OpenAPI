@@ -1,5 +1,5 @@
 const express = require("express");
-const {getAllAPIs, addUserAPI, updateUserAPI, getApisByLanguage, deleteUserAPI,  getUserAPIs, getAPIById, updateVote, getAPIsByUser } = require('../controllers/APIController')
+const { getAllAPIs, addUserAPI, updateUserAPI, getApisByLanguage, deleteUserAPI, getUserAPIs, getAPIById, updateVote, getAPIsByUser } = require('../controllers/APIController')
 const router = express.Router();
 
 
@@ -12,7 +12,7 @@ router.route('/')
   .post(addUserAPI)
 
 router.route("/user/:id").get(getAPIsByUser);
-  
+
 
 router.route('/language/:language')
   .get(getApisByLanguage);
