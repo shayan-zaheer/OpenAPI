@@ -74,7 +74,14 @@ const getUserAPIs = async (req, res) => {
 
 const getAPIsByUser = async (req, res) => {
   try {
-    const APIs = await API.find({ owner: req.params.id }).populate("owner");
+    const { id } = req.params;
+    const loggedInUserId = req.user?.id;
+
+    const filter = loggedInUserId === id
+      ? { owner: id }
+      : { owner: id, visibility: "public" };
+
+    const APIs = await API.find(filter).populate("owner");
 
     if (!APIs.length) {
       return res.status(404).json({
@@ -141,20 +148,20 @@ const addUserAPI = async (req, res) => {
  */
 const updateUserAPI = async (req, res) => {
   try {
-    // Get the API ID from the route parameters
     const APIId = req.params.id;
-    // Optionally, get the version from the route parameters (if provided)
     const newVersion = req.params.version;
+    const { name, language, documentation, code, visibility, cost, authorizedUsers } = req.body;
 
-    // Find the API by its ID
+    // Find the API
     const existingAPI = await API.findById(APIId);
     if (!existingAPI) {
       return res.status(404).json({
         success: false,
-        message: "API not found"
+        message: "API not found",
       });
     }
 
+    // Ensure only the owner can update
     if (existingAPI.owner.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -162,19 +169,28 @@ const updateUserAPI = async (req, res) => {
       });
     }
 
+    // Update version if provided
     if (newVersion) {
-      req.body.version = newVersion;
+      existingAPI.version = newVersion;
     }
 
-    const updatedAPI = await API.findByIdAndUpdate(APIId, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    existingAPI.authorizedUsers = authorizedUsers ? authorizedUsers : existingAPI.authorizedUsers;
+
+    // Update fields from request body
+    existingAPI.name = name || existingAPI.name;
+    existingAPI.language = language || existingAPI.language;
+    existingAPI.documentation = documentation || existingAPI.documentation;
+    existingAPI.code = code || existingAPI.code;
+    existingAPI.visibility = visibility || existingAPI.visibility;
+    existingAPI.cost = cost !== undefined ? cost : existingAPI.cost;
+
+    // Save updated API
+    await existingAPI.save();
 
     res.status(200).json({
       success: true,
       message: "API updated successfully",
-      API: updatedAPI,
+      API: existingAPI,
     });
   } catch (error) {
     console.error("Error updating API:", error);
@@ -185,6 +201,7 @@ const updateUserAPI = async (req, res) => {
     });
   }
 };
+
 
 const getApisByLanguage = async (req, res) => {
   try {

@@ -74,7 +74,7 @@ const Navbar = () => {
           <ul className="flex items-center text-white font-semibold text-lg gap-x-4">
             <li>
               <Link
-                to={"/apis"}
+                to={"/allApis"}
                 className="transition duration-300 ease hover:scale-105"
               >
                 APIs
