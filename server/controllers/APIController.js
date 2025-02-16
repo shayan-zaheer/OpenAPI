@@ -1,42 +1,70 @@
 const API = require("../models/API");
 
 
+// const getAPIById = async (req, res) => {
+//   try {
+//     const api = await API.findById(req.params.id).populate("owner");
+//     if (!api) {
+//       return res.status(404).json({ success: false, message: "API not found" });
+//     }
+
+//     if (api.visibility === "private") {
+//       if (!req.user) {
+//         return res.status(403).json({
+//           success: false,
+//           message: "Unauthorized: This API is private"
+//         });
+//       }
+
+//       const isOwner = api.owner._id.toString() === req.user.id;
+
+//       const isAuthorizedUser = api.authorizedUsers && api.authorizedUsers.some(
+//         userId => userId.toString() === req.user.id
+//       );
+
+//       if (!isOwner && !isAuthorizedUser) {
+//         return res.status(403).json({
+//           success: false,
+//           message: "Unauthorized: This API is private"
+//         });
+//       }
+//     }
+
+//     res.status(200).json({ success: true, api });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
 const getAPIById = async (req, res) => {
   try {
     const api = await API.findById(req.params.id).populate("owner");
+
     if (!api) {
       return res.status(404).json({ success: false, message: "API not found" });
     }
 
-    if (api.visibility === "private") {
-      if (!req.user) {
-        return res.status(403).json({
-          success: false,
-          message: "Unauthorized: This API is private"
-        });
+    const userId = req.user ? req.user.id : null;
+    const isOwner = userId && api.owner._id.toString() === userId;
+    const isAuthorizedUser = userId && api.authorizedUsers.some(user => user.toString() === userId);
+
+    if (api.visibility === "private" || api.cost > 0) {
+      if (!userId) {
+        return res.status(403).json({ success: false, message: "Unauthorized: Login required" });
       }
-
-      const isOwner = api.owner._id.toString() === req.user.id;
-
-      const isAuthorizedUser = api.authorizedUsers && api.authorizedUsers.some(
-        userId => userId.toString() === req.user.id
-      );
-
       if (!isOwner && !isAuthorizedUser) {
-        return res.status(403).json({
-          success: false,
-          message: "Unauthorized: This API is private"
-        });
+        return res.status(403).json({ success: false, message: "Unauthorized: You do not have access to this API" });
       }
     }
 
     res.status(200).json({ success: true, api });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
 
