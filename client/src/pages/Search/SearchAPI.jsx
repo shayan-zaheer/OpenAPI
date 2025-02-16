@@ -53,7 +53,7 @@ const BrowseApis = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="w-full min-h-screen bg-[#1a1c1ff8] flex flex-col items-center justify-start overflow-hidden"
+      className="w-full min-h-screen bg-[#1a1c1ff8] flex flex-col items-center justify-start overflow-hidden py-16"
     >
       {/* Header Section */}
       <div className="w-9/12 relative mx-auto md:rounded-2xl mt-16">
@@ -73,7 +73,7 @@ const BrowseApis = () => {
             className="text-white text-4xl font-semibold"
           >
             Explore{" "}
-            <span className="bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4] text-transparent bg-clip-text">
+            <span className="bg-gradient-to-r from-[#00E8FC] via-[#D400A5] to-[#6A00F4] animate-gradient text-transparent bg-clip-text">
               APIs
             </span>
           </motion.h1>
@@ -98,24 +98,29 @@ const BrowseApis = () => {
             placeholder="Search APIs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[#22252b] text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#6A00F4]"
+            className="w-full pl-12 pr-4 py-3 bg-[#22252b] text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {/* Language Filter */}
-        <div className="w-full md:w-1/3 relative">
-          <FiFilter className="absolute left-4 top-3 text-gray-400" size={20} />
-          <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[#22252b] text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#6A00F4]"
-          >
-            <option value="all">All Languages</option>
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="java">Java</option>
-          </select>
-        </div>
+        {!language && (
+          <div className="w-full md:w-1/3 relative">
+            <FiFilter
+              className="absolute left-4 top-3 text-gray-400"
+              size={20}
+            />
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-[#22252b] text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Languages</option>
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {/* API Cards Section */}
@@ -129,12 +134,12 @@ const BrowseApis = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.3 }}
-                className="bg-[#22252b] p-6 rounded-lg shadow-md cursor-pointer hover:shadow-xl transition"
+                className="bg-[#22252b] p-6 rounded-lg shadow-md cursor-pointer hover:shadow-xl transition "
               >
                 <h2 className="text-white text-xl font-semibold">{api.name}</h2>
                 <p className="text-gray-400 mt-2 text-sm">{api.description}</p>
 
-                <div className="flex justify-between items-center mt-4">
+                <div className="flex justify-between items-center gap-x-3">
                   <span
                     className={`text-sm font-semibold px-3 py-1 rounded-full ${
                       api.language === "javascript"

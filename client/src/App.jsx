@@ -11,10 +11,12 @@ import BrowseApis from "./pages/Search/SearchAPI";
 import UpdateAPI from "./pages/APIs/UpdateAPI";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
+import PageNotFound from "./pages/404/PageNotFound";
 
 const App = () => {
   return (
     <BrowserRouter>
+      <Toaster />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -25,10 +27,9 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/allApis/:language?" element={<BrowseApis />} />
-        <Route path="*" element={<div>Not Found</div>} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
       {/* <Footer /> */}
-      <Toaster />
     </BrowserRouter>
   );
 };
