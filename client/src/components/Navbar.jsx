@@ -74,7 +74,7 @@ const Navbar = () => {
           <ul className="flex items-center text-white font-semibold text-lg gap-x-4">
             <li>
               <Link
-                to={"/allApis"}
+                to={"/apis"}
                 className="transition duration-300 ease hover:scale-105"
               >
                 APIs
@@ -94,13 +94,15 @@ const Navbar = () => {
         {user ? (
           <>
             <div className="flex items-center space-x-3">
+            <Link to={`/profile/${user._id}`}>
               <img
-                src={user.profilePhoto}
+                src={user.profilePhoto || "/default.png"}
                 alt="User"
                 className="w-10 h-10 rounded-full border-2 border-white"
               />
+              </Link>
               <span className="text-white font-semibold">
-                {user.displayName}
+                {user.username}
               </span>
             </div>
             <button
@@ -169,13 +171,16 @@ const Navbar = () => {
                 <>
                   <li className="h-16 px-4 flex items-center justify-center">
                     <div className="flex items-center space-x-3">
+                      <Link to={`/profile/${user._id}`}>
                       <img
-                        src={user.profilePhoto}
+                        src={user.profilePhoto || "/default.png"}
                         alt="User"
                         className="w-10 h-10 rounded-full border-2 border-white"
                       />
+                    
+                      </Link>
                       <span className="text-white font-semibold">
-                        {user.displayName}
+                        {user.username}
                       </span>
                     </div>
                   </li>

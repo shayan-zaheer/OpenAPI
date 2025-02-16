@@ -15,7 +15,7 @@ const UpdateAPI = () => {
     owner: user?._id || "",
     visibility: "public",
     cost: 0,
-    allowedUsers: [],
+    authorizedUsers: [],
   });
 
   const [allUsers, setAllUsers] = useState([]);
@@ -29,7 +29,7 @@ const UpdateAPI = () => {
         const { data } = await axios.get(`http://localhost:8000/api/${id}`);
         setApiData({
           ...data.api,
-          allowedUsers: Array.isArray(data.api.allowedUsers) ? data.api.allowedUsers : [],
+          authorizedUsers: Array.isArray(data.api.authorizedUsers) ? data.api.authorizedUsers : [],
         });
       } catch (error) {
         setMessage("Error fetching API details.");
@@ -56,10 +56,10 @@ const UpdateAPI = () => {
   const toggleUserSelection = (userId) => {
     setApiData((prevData) => ({
       ...prevData,
-      allowedUsers: Array.isArray(prevData.allowedUsers)
-        ? prevData.allowedUsers.includes(userId)
-          ? prevData.allowedUsers.filter((id) => id !== userId) // Remove if selected
-          : [...prevData.allowedUsers, userId] // Add if not selected
+      authorizedUsers: Array.isArray(prevData.authorizedUsers)
+        ? prevData.authorizedUsers.includes(userId)
+          ? prevData.authorizedUsers.filter((id) => id !== userId) // Remove if selected
+          : [...prevData.authorizedUsers, userId] // Add if not selected
         : [userId], // Ensure it's an array
     }));
   };
@@ -70,7 +70,7 @@ const UpdateAPI = () => {
     setMessage("");
 
     try {
-      await axios.put(`http://localhost:8000/api/update/${id}`, apiData);
+      await axios.patch(`http://localhost:8000/api/${id}`, apiData, {withCredentials: true});
       setMessage("✅ API updated successfully!");
     } catch (error) {
       setMessage(error.response?.data?.message || "❌ Error updating API.");
@@ -126,14 +126,14 @@ const UpdateAPI = () => {
               <label className="text-white mt-4 block">Allowed Users:</label>
               <div className="relative">
                 <button type="button" onClick={() => setDropdownOpen(!dropdownOpen)} className="w-full px-4 py-3 text-white bg-[#1a1c1f] border border-gray-600 rounded-md flex justify-between items-center">
-                  {apiData?.allowedUsers?.length > 0 ? `${apiData?.allowedUsers?.length} Users Selected` : "Select Users"}
+                  {apiData?.authorizedUsers?.length > 0 ? `${apiData?.authorizedUsers?.length} Users Selected` : "Select Users"}
                 </button>
 
                 {dropdownOpen && (
                   <div className="z-40 absolute w-full bg-[#1a1c1f] border border-gray-600 mt-2 max-h-40 overflow-auto rounded-md shadow-lg">
                     {allUsers.map((user) => (
                       <label key={user._id} className="flex items-center gap-2 px-4 py-2 hover:bg-[#22252b] cursor-pointer">
-                        <input type="checkbox" checked={apiData.allowedUsers.includes(user._id)} onChange={() => toggleUserSelection(user._id)} />
+                        <input type="checkbox" checked={apiData.authorizedUsers.includes(user._id)} onChange={() => toggleUserSelection(user._id)} />
                         <span className="text-white">{user.displayName} ({user.email})</span>
                       </label>
                     ))}

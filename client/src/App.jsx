@@ -9,6 +9,8 @@ import UploadAPI from "./pages/UploadAPI";
 import ApiPage from "./pages/APIs/APIs";
 import BrowseApis from "./pages/Search/SearchAPI";
 import UpdateAPI from "./pages/APIs/UpdateAPI";
+import Login from "./pages/Auth/Login";
+import Signup from "./pages/Auth/Signup";
 
 const App = () => {
   return (
@@ -20,6 +22,8 @@ const App = () => {
         <Route path="/api/update/:id" element={<UpdateAPI />} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/upload" element={<UploadAPI />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/allApis/:language?" element={<BrowseApis />} />
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>

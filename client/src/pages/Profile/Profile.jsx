@@ -31,7 +31,7 @@ const ProfilePage = () => {
         const fetchAPIs = async () => {
             try {
                 const { data } = await axios.get(
-                    `http://localhost:8000/api/user/${id}`
+                    `http://localhost:8000/api/user/${id}`, {withCredentials: true}
                 );
                 console.log(data);
                 setApis(data?.APIs || []);
@@ -108,7 +108,7 @@ const ProfilePage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                     {apis.length > 0 ? (
                         apis.map((api) => (
-                            <Link to={`http://localhost:5173/api/${api._id}`}>
+                            
                                 <motion.div
                                     key={api._id}
                                     initial={{ opacity: 0, scale: 0.9 }}
@@ -116,15 +116,17 @@ const ProfilePage = () => {
                                     whileHover={{ scale: 1.03 }}
                                     className="relative bg-[#22252b] p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl"
                                 >
-                                   {loggedInUser?._id === user?._id && <button
+                                   {loggedInUser?._id === user?._id && <Link
                                         to={`/api/update/${api._id}`}
                                         className="z-40 absolute top-3 right-3 text-gray-400 hover:text-white transition"
                                     >
                                         <FiEdit size={20} />
-                                    </button>}
+                                    </Link>}
 
                                     <h2 className="text-white text-xl font-semibold">
+                                    <Link to={`http://localhost:5173/api/${api._id}`}>
                                         {api.name}
+                                      </Link>
                                     </h2>
                                     <p className="text-gray-400 mt-2 text-sm">
                                         {api.documentation.slice(0, 100)}...
@@ -145,7 +147,6 @@ const ProfilePage = () => {
                                         </span>
                                     </div>
                                 </motion.div>
-                            </Link>
                         ))
                     ) : (
                         <p className="text-gray-400 mt-4 text-center">
