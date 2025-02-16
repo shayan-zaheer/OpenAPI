@@ -2,23 +2,45 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import axios from "axios";
-import {Link} from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const BrowseApis = () => {
-    const [apis, setApis] = useState([]);
-    useEffect(() => {
-        const getAllAPIs = async() => {
-            try{
-                const result = await axios.get("http://localhost:8000/api");
-                setApis(result?.data?.apis);
-            } catch(err){
-                setApis(null);
-            }
-        }
-        getAllAPIs();
-    }, []);
+  const [apis, setApis] = useState([]);
+  const { language } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("all");
+
+  console.log(language);
+  useEffect(() => {
+    if (language) {
+      const getAPIsByLanguage = async () => {
+        try {
+          const result = await axios.get(
+            `http://localhost:8000/api/language/${language}`
+          );
+          if (result?.data?.apis.status === 404) {
+            return setApis([]);
+          }
+
+          setApis(result?.data?.apis);
+        } catch (err) {
+          setApis([]);
+        }
+      };
+      getAPIsByLanguage();
+    } else {
+      const getAllAPIs = async () => {
+        try {
+          const result = await axios.get("http://localhost:8000/api");
+          setApis(result?.data?.apis);
+          console.log(result?.data?.apis);
+        } catch (err) {
+          setApis([]);
+        }
+      };
+      getAllAPIs();
+    }
+  }, []);
 
   const filteredApis = apis.filter(
     (api) =>
@@ -36,7 +58,11 @@ const BrowseApis = () => {
       {/* Header Section */}
       <div className="w-9/12 relative mx-auto md:rounded-2xl mt-16">
         <div className="absolute inset-0 w-full h-full bg-cover bg-center blur-md rounded-2xl">
-          <img src={"/HeroBackground.png"} alt="API Background" className="object-cover rounded-2xl w-full h-full" />
+          <img
+            src={"/HeroBackground.png"}
+            alt="API Background"
+            className="object-cover rounded-2xl w-full h-full"
+          />
         </div>
 
         <div className="relative w-full min-h-full bg-black bg-opacity-60 md:rounded-2xl p-10 shadow-lg flex flex-col items-center">
@@ -97,38 +123,40 @@ const BrowseApis = () => {
         {filteredApis.length > 0 ? (
           filteredApis.map((api) => (
             <Link to={`http://localhost:5173/api/${api?._id}`}>
-                <motion.div
-                  key={api.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-[#22252b] p-6 rounded-lg shadow-md cursor-pointer hover:shadow-xl transition"
-                >
-                  <h2 className="text-white text-xl font-semibold">{api.name}</h2>
-                  <p className="text-gray-400 mt-2 text-sm">{api.description}</p>
-                
-                  <div className="flex justify-between items-center mt-4">
-                    <span
-                      className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                        api.language === "javascript"
-                          ? "bg-yellow-500 text-black"
-                          : api.language === "python"
-                          ? "bg-blue-500 text-white"
-                          : "bg-red-500 text-white"
-                      }`}
-                    >
-                      {api.language.toUpperCase()}
-                    </span>
-                    <button className="px-4 py-2 text-white bg-[#6A00F4] rounded-md hover:bg-[#5000C9] transition">
-                      View API
-                    </button>
-                  </div>
-                </motion.div>
+              <motion.div
+                key={api.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.3 }}
+                className="bg-[#22252b] p-6 rounded-lg shadow-md cursor-pointer hover:shadow-xl transition"
+              >
+                <h2 className="text-white text-xl font-semibold">{api.name}</h2>
+                <p className="text-gray-400 mt-2 text-sm">{api.description}</p>
+
+                <div className="flex justify-between items-center mt-4">
+                  <span
+                    className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                      api.language === "javascript"
+                        ? "bg-yellow-500 text-black"
+                        : api.language === "python"
+                        ? "bg-blue-500 text-white"
+                        : "bg-red-500 text-white"
+                    }`}
+                  >
+                    {api.language.toUpperCase()}
+                  </span>
+                  <button className="px-4 py-2 text-white bg-[#6A00F4] rounded-md hover:bg-[#5000C9] transition">
+                    View API
+                  </button>
+                </div>
+              </motion.div>
             </Link>
           ))
         ) : (
-          <p className="text-gray-400 mt-6 text-center col-span-full">No APIs found.</p>
+          <p className="text-gray-400 mt-6 text-center col-span-full">
+            No APIs found.
+          </p>
         )}
       </div>
     </motion.div>

@@ -9,19 +9,19 @@ const Home = () => {
       id: 1,
       title: "Python",
       image: "/python.png",
-      link: "/apis/python",
+      link: "/allApis/python",
     },
     {
       id: 2,
       title: "JavaScript",
       image: "/javascript.png",
-      link: "/apis/javascript",
+      link: "/allApis/javascript",
     },
     {
       id: 3,
       title: "Java",
       image: "/java.png",
-      link: "/apis/java",
+      link: "/allApis/java",
     },
   ];
   return (

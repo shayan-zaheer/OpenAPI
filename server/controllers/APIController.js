@@ -36,7 +36,7 @@ const getAPIById = async (req, res) => {
         });
       }
     }
-    
+
     res.status(200).json({ success: true, api });
   } catch (error) {
     res.status(500).json({
@@ -316,6 +316,7 @@ const updateVote = async (req, res) => {
     const apiId = req.params.id;
     const { action } = req.body; // Expected: "upvote", "downvote", "withdrawUpvote", "withdrawDownvote"
     const userId = req.user.id;
+    console.log(apiId, action, userId);
 
     // Validate the action value.
     const validActions = ["upvote", "downvote", "withdrawUpvote", "withdrawDownvote"];
