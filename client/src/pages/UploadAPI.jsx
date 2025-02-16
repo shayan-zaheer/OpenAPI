@@ -22,38 +22,13 @@ const UploadAPI = () => {
     setApiData({ ...apiData, [e.target.name]: e.target.value });
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setMessage("");
-
-  //   try {
-  //     const response = await axios.post("http://localhost:8000/api/upload", apiData);
-  //     setMessage("API uploaded successfully!");
-  //     setApiData({
-  //       name: "",
-  //       language: "javascript",
-  //       documentation: "",
-  //       code: "",
-  //       owner: user?._id || "",
-  //       visibility: "public",
-  //       cost: 0,
-  //     });
-  //   } catch (error) {
-  //     setMessage(error.response?.data?.message || "Error uploading API.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-  
+
     try {
-      const response = await axios.post("http://localhost:8000/api/", apiData);
+      const response = await axios.post("http://localhost:8000/api/upload", apiData);
       setMessage("API uploaded successfully!");
       setApiData({
         name: "",

@@ -18,7 +18,6 @@ const ApiPage = () => {
   const [upvotes, setUpvotes] = useState(12);
   const [downvotes, setDownvotes] = useState(3);
   const [favorited, setFavorited] = useState(false);
-  const user = useSelector((state) => state.user.user);
   console.log(user);
 
   useEffect(() => {
