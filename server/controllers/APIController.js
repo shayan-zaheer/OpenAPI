@@ -321,9 +321,10 @@ const getAllAPIs = async (req, res) => {
  */
 const updateVote = async (req, res) => {
   try {
-    const apiId = req.params.id;
-    const { action } = req.body; // Expected: "upvote", "downvote", "withdrawUpvote", "withdrawDownvote"
-    const userId = req.user.id;
+    const apiId = req?.params?.id;
+    // const apiId = req.params.id;
+    const { action } = req?.body; // Expected: "upvote", "downvote", "withdrawUpvote", "withdrawDownvote"
+    const userId = req?.user?.id;
     console.log(apiId, action, userId);
 
     // Validate the action value.
