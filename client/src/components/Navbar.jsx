@@ -63,7 +63,7 @@ const Navbar = () => {
           <ul className="flex items-center text-white font-semibold text-lg gap-x-4">
             <li>
               <Link
-                to={"/apis"}
+                to={"/allApis"}
                 className="transition duration-300 ease hover:scale-105"
               >
                 APIs
@@ -74,18 +74,10 @@ const Navbar = () => {
           <ul className="flex items-center text-white font-semibold text-lg gap-x-4">
             <li>
               <Link
-                to={"/apis"}
+                to={"/allApis"}
                 className="transition duration-300 ease hover:scale-105"
               >
                 APIs
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={"/favourites"}
-                className="transition duration-300 ease hover:scale-105"
-              >
-                Favourites
               </Link>
             </li>
             <li>
