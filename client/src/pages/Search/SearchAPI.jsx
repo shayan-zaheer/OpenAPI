@@ -134,12 +134,12 @@ const BrowseApis = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.3 }}
-                className="bg-[#22252b] p-6 rounded-lg shadow-md cursor-pointer hover:shadow-xl transition lg:w-80 lg:h-36 flex-wrap"
+                className="bg-[#22252b] p-6 rounded-lg shadow-md cursor-pointer hover:shadow-xl transition "
               >
                 <h2 className="text-white text-xl font-semibold">{api.name}</h2>
                 <p className="text-gray-400 mt-2 text-sm">{api.description}</p>
 
-                <div className="flex justify-between items-center mt-4">
+                <div className="flex justify-between items-center gap-x-3">
                   <span
                     className={`text-sm font-semibold px-3 py-1 rounded-full ${
                       api.language === "javascript"
