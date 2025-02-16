@@ -19,21 +19,21 @@ const ApiPage = () => {
   const user = useSelector((state) => state.user.user);
   console.log(user);
 
+  const getAPI = async () => {
+    try {
+      const { data } = await axios.get(`http://localhost:8000/api/${id}`);
+      setApi(data?.api);
+      console.log(data?.api);
+    } catch (err) {
+      setApi({
+        failure: err?.response?.data?.message || "This is a private API",
+      });
+    }
+  };
   useEffect(() => {
-    const getAPI = async () => {
-      try {
-        const { data } = await axios.get(`http://localhost:8000/api/${id}`);
-        setApi(data?.api);
-        console.log(data?.api);
-      } catch (err) {
-        setApi({
-          failure: err?.response?.data?.message || "This is a private API",
-        });
-      }
-    };
-
     getAPI();
   }, [id]);
+  s;
 
   if (api?.failure) {
     return (
@@ -87,7 +87,7 @@ const ApiPage = () => {
           { withCredentials: true }
         );
         if (response?.data?.api) {
-          setApi(response?.data?.api);
+          getAPI();
         }
         console.log(response);
       } catch (err) {
@@ -115,7 +115,7 @@ const ApiPage = () => {
           { withCredentials: true }
         );
         if (response?.data?.api) {
-          setApi(response?.data?.api);
+          getAPI();
         }
         console.log(response);
       } catch (err) {
