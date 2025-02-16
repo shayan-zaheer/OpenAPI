@@ -84,6 +84,14 @@ const getUserAPIs = async (req, res) => {
  */
 const addUserAPI = async (req, res) => {
   try {
+    // Check if request body is empty
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Request body is empty. Please send valid JSON data.",
+      });
+    }
+
     // Destructure necessary fields from the request body
     const { name, code, documentation, language, baseUrl, version, visibility, cost } = req.body;
 

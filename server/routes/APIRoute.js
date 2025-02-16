@@ -18,38 +18,75 @@ const router = express.Router();
 //       .get(getUserAPIs);
 
 
-router.get("/:apiId/authorized-users", getAuthorizedUsers);
 
-router.route('/updatestatus/:apiId/:status').patch(updateAPIStatus);
 
-// Routes to add or remove an authorized user for an API.
-// Expects both the API ID and the user ID in the URL.
-// These routes use two URL segments (e.g. /:apiId/:userId) and are separate from the single-segment :id routes.
-router.route('/:apiId/:userId')
-  .post(addAuthorizedUser)
-  .delete(removeAuthorizedUser);
+/**
+* Route: PATCH /vote/:id
+* Description:
+*   Updates the vote for a specific API.
+*   Expects a JSON body with an "action" field which should be one of:
+*     "upvote", "downvote", "withdrawUpvote", "withdrawDownvote".
+* URL Parameter:
+*   :id - The ID of the API to vote on.
+*/
+router.route('/vote/:id').patch(updateVote);
 
-// Route to update votes on an API document.
-// Expects the API ID as a parameter.
-router.route('/vote/:id').patch(updateVote); // Expected: "upvote", "downvote", "withdrawUpvote", "withdrawDownvote" in body
-
-// Routes for API details, deletion, or update for a single API.
-// Expects a single parameter :id,
-router.route('/:id')
-  .get(getAPIById)
-  .delete(deleteUserAPI)
-  .patch(updateUserAPI);
-
-// Route to get APIs by language.
-// URL pattern: /language/:language (expects two segments).
+/**
+* Route: GET /language/:language
+* Description:
+*   Retrieves APIs filtered by the specified programming language.
+* URL Parameter:
+*   :language - The programming language (e.g., "javascript", "python", "java").
+*/
 router.route('/language/:language').get(getApisByLanguage);
 
-// Route for the authenticated user to view their own APIs.
+/**
+* Route: GET /my
+* Description:
+*   Retrieves APIs created by the authenticated user.
+*   Relies on authentication middleware to populate req.user.
+*/
 router.route('/my').get(getUserAPIs);
 
-// Root route to get all APIs (with public/private filtering) and to add a new API.
+/**
+* Route: POST /upload
+* Description:
+*   Creates a new API document with the provided details.
+*   Expects a JSON body with fields such as:
+*     - name
+*     - code
+*     - documentation
+*     - language
+*     - baseUrl
+*     - visibility
+*     - cost
+*   The "owner" field is typically set automatically (e.g., from req.user).
+*/
+router.route('/upload').post(addUserAPI);
+
+/**
+* Generic API Route for a Specific API:
+* Route: /:id
+* Description:
+*   GET    /:id - Retrieves details for a specific API.
+*   DELETE /:id - Deletes the API if the authenticated user is the owner.
+*   PATCH  /:id - Updates the API with fields provided in the request body.
+* URL Parameter:
+*   :id - The ID of the API to operate on.
+*/
+router.route('/:id')
+ .get(getAPIById)
+ .delete(deleteUserAPI)
+ .patch(updateUserAPI);
+
+/**
+* Root Route for All APIs:
+* Route: GET /
+* Description:
+*   Retrieves all APIs with public/private filtering based on authentication.
+*   Does not require any URL parameters or request body.
+*/
 router.route('/')
-  .get(getAllAPIs)
-  .post(addUserAPI);
+ .get(getAllAPIs);
 
 module.exports = router;
