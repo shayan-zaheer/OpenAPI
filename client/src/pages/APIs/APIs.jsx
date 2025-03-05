@@ -15,20 +15,19 @@ import { useSelector } from "react-redux";
 const ApiPage = () => {
   const { id } = useParams();
   const [api, setApi] = useState(null);
-  const [upvotes, setUpvotes] = useState(false);
-  const [downvotes, setDownvotes] = useState(false);
   const [authorized, setAuthorized] = useState(false);
   const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
     const getAPI = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:8000/api/${id}`);
+        const { data } = await axios.get(`http://localhost:8000/api/${id}`, {withCredentials: true});
         setApi(data?.api);
 
         if (
           data.api.cost === 0 ||
-          data.api.authorizedUsers.includes(user?._id)
+          data.api.authorizedUsers.includes(user?._id) ||
+          data.api.owner._id === user?._id
         ) {
           setAuthorized(true);
         }

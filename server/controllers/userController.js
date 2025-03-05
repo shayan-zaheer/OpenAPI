@@ -13,9 +13,6 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-/**
- * Get a single user by ID
- */
 const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
@@ -33,9 +30,6 @@ const getUserById = async (req, res) => {
   }
 };
 
-/**
- * Delete the authenticated user's account
- */
 const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -57,14 +51,8 @@ const deleteUser = async (req, res) => {
   }
 };
 
-
-
-
-
-
 module.exports = {
   getAllUsers,
   getUserById,
   deleteUser,
-
 }
