@@ -4,9 +4,6 @@ import axios from "axios";
 import {
   FiDownload,
   FiCopy,
-  FiThumbsUp,
-  FiThumbsDown,
-  FiLock,
 } from "react-icons/fi";
 import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
