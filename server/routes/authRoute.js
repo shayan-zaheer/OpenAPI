@@ -13,7 +13,12 @@ router.route("/google").get(passport.authenticate("google", { scope: ["profile",
 router.route("/google/callback").get(
   passport.authenticate("google", { failureRedirect: "/" }),
   (request, response) => {
-    response.redirect("http://localhost:5173/");
+    const redirectURL =
+      process.env.NODE_ENV === "production"
+        ? "https://open-api-iota-eosin.vercel.app/"
+        : "http://localhost:5173/";
+
+    response.redirect(redirectURL);
   }
 );
 
