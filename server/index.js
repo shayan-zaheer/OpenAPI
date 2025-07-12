@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 8000;
 
 app.use(
     cors({
-        origin: ["http://localhost:5173"],
+        origin: ["open-api-iota-eosin.vercel.app", "http://localhost:5173"],
         credentials: true,
     })
 );
