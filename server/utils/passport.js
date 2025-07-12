@@ -8,9 +8,13 @@ const User = require("../models/User");
 const configurePassport = (app) => {
     app.use(
         session({
-            secret: "secret",
-            saveUninitialized: true,
+            secret: process.env.SESSION_SECRET || "supersecretkey",
             resave: false,
+            saveUninitialized: false,
+            cookie: {
+                sameSite: "none",
+                secure: true,
+            },
         })
     );
 
