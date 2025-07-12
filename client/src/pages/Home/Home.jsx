@@ -1,5 +1,5 @@
 import Collections from "../../components/Collections";
-import FirstSection from "./FirstSection";
+
 
 const Home = () => {
     const apis = [
