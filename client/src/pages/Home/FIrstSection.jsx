@@ -1,7 +1,6 @@
-import React from "react";
 import Hero from "./Hero";
 
-const FIrstSection = () => {
+const FirstSection = () => {
   return (
     <div className="w-full h-[92vh] bg-[#1a1c1ff8]">
       <Hero />
@@ -9,4 +8,4 @@ const FIrstSection = () => {
   );
 };
 
-export default FIrstSection;
+export default FirstSection;

@@ -15,7 +15,7 @@ const Navbar = () => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const { data } = await axios.get("http://localhost:8000/auth/status", {
+        const { data } = await axios.get(process.env.VITE_BACKEND_URL/auth/status", {
           withCredentials: true,
         });
         dispatch(setUserAction(data.user));
@@ -30,13 +30,13 @@ const Navbar = () => {
 
   const handleGoogle = (e) => {
     e.preventDefault();
-    window.location.href = "http://localhost:8000/auth/google";
+    window.location.href = process.env.VITE_BACKEND_URL/auth/google";
   };
 
   const logout = async (e) => {
     e.preventDefault();
     try {
-      await axios.get("http://localhost:8000/auth/logout", {
+      await axios.get(process.env.VITE_BACKEND_URL/auth/logout", {
         withCredentials: true,
       });
       dispatch(setUserAction(null));

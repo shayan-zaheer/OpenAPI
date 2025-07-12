@@ -18,7 +18,7 @@ const ProfilePage = () => {
         const fetchProfile = async () => {
             try {
                 const { data } = await axios.get(
-                    `http://localhost:8000/user/${id}`
+                    `${import.meta.env.VITE_BACKEND_URL}/user/${id}`
                 );
                 setUser(data?.user);
             } catch (err) {
@@ -32,7 +32,7 @@ const ProfilePage = () => {
         const fetchAPIs = async () => {
             try {
                 const { data } = await axios.get(
-                    `http://localhost:8000/api/user/${id}`,
+                    `${import.meta.env.VITE_BACKEND_URL}/api/user/${id}`,
                     { withCredentials: true }
                 );
                 console.log(data);
@@ -81,7 +81,9 @@ const ProfilePage = () => {
                         />
                     ) : (
                         <div className="w-24 h-24 rounded-full border-white border-2 text-white flex items-center justify-center bg-gradient-to-r from-[#FF0044] to-[#00D4FF]">
-                          <h1 className="text-4xl">{user?.username?.[0]?.toUpperCase()}</h1>
+                            <h1 className="text-4xl">
+                                {user?.username?.[0]?.toUpperCase()}
+                            </h1>
                         </div>
                     )}
 
@@ -138,9 +140,7 @@ const ProfilePage = () => {
                                 )}
 
                                 <h2 className="text-white text-xl font-semibold hover:underline">
-                                    <Link
-                                        to={`/api/${api._id}`}
-                                    >
+                                    <Link to={`/api/${api._id}`}>
                                         {api.name}
                                     </Link>
                                 </h2>
