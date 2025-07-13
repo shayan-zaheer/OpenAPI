@@ -185,6 +185,30 @@ const Navbar = () => {
                                     APIs
                                 </Link>
                             </li>
+                            
+                            {/* Legal Links */}
+                            <li
+                                className="h-16 border-b px-4 flex items-center"
+                                onClick={() => setOpenMenu(false)}
+                            >
+                                <Link
+                                    to={"/terms"}
+                                    className="responsive-menu-links"
+                                >
+                                    Terms & Conditions
+                                </Link>
+                            </li>
+                            <li
+                                className="h-16 border-b px-4 flex items-center"
+                                onClick={() => setOpenMenu(false)}
+                            >
+                                <Link
+                                    to={"/privacy"}
+                                    className="responsive-menu-links"
+                                >
+                                    Privacy Policy
+                                </Link>
+                            </li>
 
                             {user ? (
                                 <>
